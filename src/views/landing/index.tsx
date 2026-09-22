@@ -1,15 +1,15 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SearchBar } from '@/features/jurnal-filter/ui/search-bar.client'
-import { KategoriDropdown } from '@/features/jurnal-filter/ui/kategori-dropdown.client'
 import { useJurnalFilter } from '@/features/jurnal-filter/lib/use-jurnal-filter'
 import { JurnalList } from '@/widgets/jurnal-list/ui'
-import { CalendarWidget } from '@/widgets/calendar-widget/ui'
-import { DocumentationPanel } from '@/widgets/documentation-panel/ui'
-import { FuturisticLine } from '@/shared/ui/futuristic-line'
 import { JurnalDetailModal } from '@/entities/jurnal/ui/jurnal-detail-modal.client'
+import { CalendarSection } from '@/widgets/calendar/ui'
+import { DokumentasiSection } from '@/widgets/dokumentasi/ui'
+import { Footer } from '@/widgets/footer/ui'
 import { StatsSection } from '@/widgets/stats-section/ui'
 import { AuthButton } from '@/features/lawet-auth/ui/auth-button.client'
 import {
@@ -25,6 +25,35 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeDate, setActiveDate] = useState<string | null>(null)
   const [selectedJurnalId, setSelectedJurnalId] = useState<string | null>(null)
+  const [isLoginOpen, setIsLoginOpen] = React.useState(false)
+  const [showPin, setShowPin] = React.useState(false)
+
+  const router = useRouter()
+  const [pin, setPin] = useState(['', '', '', ''])
+  const pinRefs = useRef<(HTMLInputElement | null)[]>([])
+  
+  const handlePinChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newPin = [...pin];
+    newPin[index] = value.slice(-1);
+    setPin(newPin);
+    
+    if (value && index < 3) {
+      pinRefs.current[index + 1]?.focus();
+    }
+    
+    if (index === 3 && value) {
+       setTimeout(() => {
+         router.push('/panel')
+       }, 500)
+    }
+  }
+
+  const handlePinKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && !pin[index] && index > 0) {
+      pinRefs.current[index - 1]?.focus();
+    }
+  }
 
   const [scrollY, setScrollY] = useState(0)
   const [vhPx, setVhPx] = useState(800)
@@ -95,94 +124,129 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
     <QueryClientProvider client={queryClient}>
       <div className="relative bg-[var(--color-canvas)] overflow-x-hidden min-h-screen">
 
-        {/* SECTION 1 — HERO */}
-        <section
-          className="relative w-full overflow-hidden"
-          style={{ height: '100vh' }}
-        >
-          <div
-            className="absolute bg-cover bg-center will-change-transform"
-            style={{
-              backgroundImage: `url('${heroImagePath}')`,
-              filter: 'grayscale(60%) brightness(50%) contrast(110%)',
-              transform: `translateY(${bannerTranslate}px)`,
-              inset: '-15% 0 0 0',
-              height: '130%',
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-canvas)] via-[var(--color-canvas)]/30 to-black/20 z-10" />
 
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none select-none will-change-transform"
-            style={{ transform: `translateY(${titleTranslateY}px)` }}
-          >
-            <HeroLogoReveal
-              src="/assets/logo.png"
-              alt="Bawaslu Kebumen"
-              style={{
-                opacity: subtitleOpacity > 0 ? subtitleOpacity : 0,
-              }}
-            />
-            <HeroTitleReveal title={heroTitle} className="leading-none" />
-            <HeroSubtitleReveal
-              subtitle={heroSubtitle}
-              style={{ opacity: subtitleOpacity }}
-            />
-
-            <div
-              className="mt-12 flex flex-col items-center gap-3"
-              style={{ opacity: subtitleOpacity }}
-            >
-              <button
-                aria-label="Scroll ke Arsip Jurnal"
-                onClick={() => {
-                  document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                style={{
-                  pointerEvents: 'auto',
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '14px 28px 16px',
-                  borderRadius: '999px',
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border-subtle)',
-                  boxShadow: 'var(--shadow-elevation-1)',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  userSelect: 'none',
-                  transition: 'all 0.25s ease',
-                }}
+        {/* Sticky Header */}
+        <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrollY > 150 ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+          <div className="w-full max-w-[1429px] mx-auto px-4 md:px-10 py-4">
+            <div className="bg-[#EBF2FC]/60 backdrop-blur-xl rounded-[44.5px] h-[89px] px-8 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(255,255,255,0.3)]" style={{ fontFamily: 'Poppins' }}>
+              <div className="flex items-center">
+                <img src="/assets/hero-logo-etalase.png" alt="ETALASE" className="h-[45px] object-contain" />
+              </div>
+              <div className="hidden lg:flex items-center gap-[60px]">
+                <a href="#" className="text-[#142B42] font-semibold text-[15px] relative">
+                  Beranda
+                  <div className="absolute -bottom-1.5 left-0 w-full h-[2px] bg-[#142B42]"></div>
+                </a>
+                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">E-kalender</a>
+                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Jurnal</a>
+                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Dokumentasi</a>
+              </div>
+              <button 
+                className="bg-[#F7921C] hover:bg-[#e08316] transition-colors text-white font-semibold text-[15px] w-[154px] h-[67px] rounded-[34px] flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.1)]"
+                onClick={() => setIsLoginOpen(true)}
               >
-                <span
-                  style={{
-                    fontSize: '0.6rem',
-                    letterSpacing: '0.38em',
-                    fontFamily: 'IBM Plex Mono, monospace',
-                    fontWeight: 500,
-                    color: 'var(--color-text-primary)',
-                  }}
-                >
-                  SCROLL
-                </span>
-                <svg
-                  width="14"
-                  height="8"
-                  viewBox="0 0 14 8"
-                  fill="none"
-                  style={{ opacity: 0.7, marginTop: '-2px' }}
-                >
-                  <path
-                    d="M1 1l6 6 6-6"
-                    stroke="var(--color-text-primary)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Login
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* NEW WHITE HERO SECTION */}
+        <section className="relative w-full pt-[120px] pb-[80px]">
+          
+          <div className="relative z-25 w-full max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col lg:flex-row items-center justify-between">
+            
+            {/* Top Right Bawaslu Logo (Aligned to container instead of screen edge) */}
+            <div className="absolute top-[-60px] md:top-[-80px] right-4 md:right-12 z-50">
+              <img src="/assets/bawaslu_hero_logo.png" alt="Bawaslu Kebumen" className="w-[160px] md:w-[220px] lg:w-[260px] object-contain drop-shadow-sm" />
+            </div>
+
+            {/* Left Content */}
+            <div className="w-full lg:w-[45%] flex flex-col pt-8 z-20">
+              <h2 className="text-[#142B42] text-[22px] md:text-[26px] font-medium mb-4" style={{ fontFamily: 'Poppins' }}>
+                Selamat Datang di
+              </h2>
+              
+              <div className="flex items-center gap-5 md:gap-6 mb-6">
+                {/* Left: Giant Circular Icon */}
+                <img 
+                  src="/assets/hero-logo-left.png" 
+                  alt="ETALASE Icon" 
+                  className="w-[110px] md:w-[140px] shrink-0 object-contain drop-shadow-md" 
+                />
+                
+                {/* Right: Stack of ETALASE Text + Arsip Langkah */}
+                <div className="flex flex-col justify-center">
+                  <img 
+                    src="/assets/hero-logo-etalase.png" 
+                    alt="ETALASE Text" 
+                    className="w-[180px] md:w-[240px] mb-2 object-contain" 
+                  />
+                  <h1 className="text-[#142B42] text-[22px] md:text-[26px] leading-[1.35] font-medium tracking-tight" style={{ fontFamily: 'Poppins' }}>
+                    Arsip Jurnal Bawaslu<br/>Kebumen
+                  </h1>
+                </div>
+              </div>
+
+              <p className="text-[#5D6A77] text-[15px] md:text-[16px] leading-[1.7] max-w-[480px] mb-10 font-medium" style={{ fontFamily: 'Poppins' }}>
+                Temukan, jelajahi, dan akses informasi arsip, serta jurnal Bawaslu Kebumen dengan mudah dan terstruktur dalam satu platform
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <button 
+                  onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="bg-[#F7921C] text-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#e08519] transition-all hover:-translate-y-1 shadow-[0_10px_20px_rgba(247,146,28,0.3)]"
+                >
+                  Lihat Kalender
+                </button>
+                <button 
+                  onClick={() => document.getElementById('section-kpi')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="bg-transparent text-[#F7921C] border-2 border-[#F7921C] px-8 py-3.5 rounded-full font-semibold hover:bg-[#FFF3E5] transition-colors"
+                >
+                  Jelajahi Kami
+                </button>
+              </div>
+            </div>
+
+            {/* Right Content - The Calendars */}
+            <div className="w-full lg:w-[50%] flex justify-center lg:justify-end mt-16 lg:mt-0 relative z-20">
+              <div className="relative w-full max-w-[650px] aspect-square flex items-center justify-center">
+                
+                {/* Abstract Blue Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#346BFF] opacity-15 rounded-[100px] blur-[80px] pointer-events-none -z-10"></div>
+
+                {/* Layer 1: Background Floating Cards (kalender_header.png) */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-[65%] -translate-y-1/2 w-[145%] z-0 flex items-center justify-center pointer-events-none">
+                  <img 
+                    src="/assets/kalender_header.png" 
+                    alt="Background decorative cards" 
+                    className="w-full h-auto object-contain drop-shadow-xl"
+                  />
+                </div>
+
+                {/* Layer 2: The Core Calendar UI (Flat Mac Window) */}
+                <div className="relative z-10 w-[85%] sm:w-[80%] flex items-center justify-center">
+                  <img 
+                    src="/assets/kalender_asli_hd.png" 
+                    alt="ETALASE Calendar Illustration" 
+                    className="w-full h-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
+                    onClick={() => {
+                      document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })
+                    }} 
+                  />
+                </div>
+
+                {/* Layer 3: The Floating Event Card ("8 Sept 2026") */}
+                <div className="absolute bottom-6 right-[-15%] sm:right-[-22%] z-20 pointer-events-none drop-shadow-2xl">
+                  <img 
+                    src="/assets/floating_event_card.png" 
+                    alt="Event Card" 
+                    className="w-[240px] md:w-[280px] lg:w-[320px] object-contain hover:scale-105 transition-transform"
+                  />
+                </div>
+
+              </div>
             </div>
           </div>
         </section>
@@ -190,142 +254,172 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
         {/* SECTION 2 — STATS */}
         <StatsSection />
 
-        {/* SECTION 3 — ARSIP JURNAL */}
+        {/* SECTION 2.5 - CALENDAR */}
+        <div className="w-full pb-10">
+          <CalendarSection onEventClick={() => setSelectedJurnalId('evt-1')} />
+        </div>
+
+
+        {/* SECTION 3 - ARSIP JURNAL */}
         <section
           id="section-arsip"
           ref={section3Ref}
-          className="relative w-full bg-[var(--color-canvas)] lg:h-screen lg:overflow-hidden"
+          className="relative w-full pb-4"
         >
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-6 lg:pb-8 flex flex-col lg:h-screen">
-            <div className="
-              grid grid-cols-1 lg:grid-cols-5
-              gap-6 lg:gap-8
-              lg:flex-1 lg:min-h-0
-            ">
-              <div
-                ref={listScrollRef}
-                className="
-                  col-span-1 lg:col-span-3
-                  lg:overflow-y-auto lg:min-h-0
-                  pr-0 lg:pr-2
-                  transition-all duration-700 ease-out
-                "
-                style={{
-                  scrollbarWidth: 'thin',
-                  scrollbarColor: 'var(--color-border-subtle) transparent',
-                  opacity: isSection3Visible ? 1 : 0,
-                  transform: isSection3Visible ? 'translateY(0)' : 'translateY(32px)',
-                  transitionDelay: '0ms',
-                }}
-              >
-                <JurnalList
-                  q={q}
-                  kategori={kategori}
-                  activeId={activeId}
-                  setActiveId={setActiveId}
-                  onActiveDateChange={setActiveDate}
-                  onCardClick={setSelectedJurnalId}
-                  scrollContainerRef={listScrollRef}
-                  lineTargetId={hoverLine?.id ?? activeId}
-                  onHover={(id, date) => setHoverLine({ id, date })}
-                  onLeaveHover={() => setHoverLine(null)}
-                  navigatingRef={navigatingRef}
-                />
-              </div>
-
-              <div
-                className="col-span-1 lg:col-span-2 flex flex-col gap-5 lg:overflow-hidden lg:min-h-0 transition-all duration-700 ease-out"
-                style={{
-                  opacity: isSection3Visible ? 1 : 0,
-                  transform: isSection3Visible ? 'translateY(0)' : 'translateY(40px)',
-                  transitionDelay: '120ms',
-                }}
-              >
-                <div className="flex-shrink-0">
-                  <DocumentationPanel
-                    activeDate={hoverLine?.date ?? activeDate}
+          <div className="max-w-[1440px] mx-auto px-4 md:px-10 pt-10">
+            
+              {/* Figma-Matched Search Bar Container */}
+              <div className="bg-white rounded-[20px] px-6 py-5 flex flex-col md:flex-row items-center justify-between mb-16 max-w-[1282px] mx-auto gap-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.03)]" style={{ fontFamily: 'Poppins' }}>
+                
+                {/* Search Input */}
+                <div className="flex-none h-[62px] w-full md:w-[604px] flex items-center px-6 bg-[#F8FAFC] border border-[#737272]/50 rounded-[20px] transition-colors focus-within:border-[#F7921C]">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3 shrink-0"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <input 
+                    type="text" 
+                    placeholder="Cari judul artikel, topik, penulis (contoh : parmas, netralitas, verifikasi)" 
+                    className="w-full bg-transparent border-none outline-none text-[#142B42] text-[14px] placeholder-[#9CA3AF]"
+                    value={q}
+                    onChange={(e) => setFilter(e.target.value, kategori)}
                   />
                 </div>
-                <div className="flex-shrink-0">
-                  <CalendarWidget
-                    activeDate={hoverLine?.date ?? activeDate}
-                    onDateClick={handleDateClick}
-                  />
+                
+                {/* Filters & Button Group */}
+                <div className="flex flex-col md:flex-row items-center justify-end gap-[16px] flex-1 w-full md:w-auto">
+                  
+                  {/* Kategori Dropdown */}
+                  <div className="relative h-[62px] w-full md:max-w-[230px] flex-1 bg-[#F8FAFC] border border-[#737272]/50 rounded-[20px] flex items-center hover:border-[#F7921C]/50 transition-colors">
+                    <select 
+                      className="w-full h-full bg-transparent text-[#5D6A77] text-[14px] font-medium outline-none pl-6 pr-12 cursor-pointer appearance-none z-10"
+                      value={kategori}
+                      onChange={(e) => setFilter(q, e.target.value)}
+                    >
+                      <option value="">Semua Kategori</option>
+                      <option value="sosialisasi">Sosialisasi</option>
+                      <option value="rapat">Rapat Evaluasi</option>
+                      <option value="mou">MoU</option>
+                    </select>
+                    <svg className="w-5 h-5 text-[#9CA3AF] absolute right-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+  
+                  {/* Tahun Dropdown */}
+                  <div className="relative h-[62px] w-full md:max-w-[190px] flex-1 bg-[#F8FAFC] border border-[#737272]/50 rounded-[20px] flex items-center hover:border-[#F7921C]/50 transition-colors">
+                    <select className="w-full h-full bg-transparent text-[#5D6A77] text-[14px] font-medium outline-none pl-6 pr-12 cursor-pointer appearance-none z-10">
+                      <option>Semua Tahun</option>
+                      <option>2026</option>
+                      <option>2025</option>
+                    </select>
+                    <svg className="w-5 h-5 text-[#9CA3AF] absolute right-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+  
+                  {/* Search Button */}
+                  <button className="h-[62px] w-full md:w-[140px] flex-none bg-[#F7921C] rounded-[20px] flex items-center justify-center gap-2 text-white text-[15px] font-bold hover:bg-[#e08419] transition-all">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Cari
+                  </button>
                 </div>
               </div>
 
-            </div>
+            {/* Jurnal Grid List */}
+            <JurnalList
+              q={q}
+              kategori={kategori}
+              activeId={activeId}
+              setActiveId={setActiveId}
+              onActiveDateChange={setActiveDate}
+              onCardClick={(id) => {
+                setSelectedJurnalId(id)
+              }}
+            />
+
           </div>
         </section>
 
-        {/* Sticky header */}
-        <header
-          className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
-          style={{
-            backgroundColor: `rgba(244, 240, 230, ${navProgress * 0.95})`,
-            backdropFilter: `blur(${navProgress * 28}px)`,
-            WebkitBackdropFilter: `blur(${navProgress * 28}px)`,
-            borderBottom: `1px solid rgba(228, 221, 208, ${navProgress})`,
-            boxShadow: `0 4px 16px rgba(90, 75, 55, ${navProgress * 0.08})`,
-            transform: navVisible ? 'translateY(0)' : 'translateY(-100%)',
-            opacity: navProgress,
-            pointerEvents: navVisible ? 'auto' : 'none',
-            height: '64px',
-          }}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 sm:gap-3 select-none flex-shrink-0">
-              <div
-                className="flex items-center justify-center bg-[var(--color-surface)] border border-[var(--color-border-subtle)]"
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                }}
-              >
-                <img
-                  src="/assets/logo.png"
-                  alt="Bawaslu"
-                  style={{ width: '20px', height: '20px' }}
-                  className="object-contain"
-                />
-              </div>
-              <span
-                className="text-[var(--color-text-primary)] font-serif font-bold text-sm sm:text-base"
-                style={{ letterSpacing: '0.05em' }}
-              >
-                {heroTitle}
-              </span>
-            </div>
+        {/* SECTION 4 - DOKUMENTASI KEGIATAN */}
+        <DokumentasiSection />
 
-            <div className="flex items-center gap-2 justify-end">
-              <div className="w-28 xs:w-40 sm:w-48 md:w-64">
-                <SearchBar value={q} onChange={(val) => setFilter(val, kategori)} />
-              </div>
-              <KategoriDropdown value={kategori} onChange={(val) => setFilter(q, val)} />
-              <div className="ml-1 sm:ml-2 border-l border-[var(--color-border-subtle)] pl-2 sm:pl-3 flex items-center h-8">
-                <AuthButton />
-              </div>
-            </div>
-          </div>
-        </header>
+        {/* FOOTER */}
+        <Footer />
 
         <JurnalDetailModal
           id={selectedJurnalId}
           isOpen={!!selectedJurnalId}
           onClose={() => setSelectedJurnalId(null)}
         />
-
-        {!selectedJurnalId && (
-          <div className="hidden lg:block">
-            <FuturisticLine
-              activeId={hoverLine?.id ?? activeId}
-              activeDate={hoverLine?.date ?? activeDate}
-              scrollContainerRef={listScrollRef}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Login Modal Overlay */}
+      {isLoginOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 overflow-y-auto" onClick={() => setIsLoginOpen(false)}>
+          <div 
+            className="relative w-full max-w-[1306px] min-h-[840px] bg-white rounded-[64px] flex overflow-hidden shadow-2xl mx-auto flex-col md:flex-row" 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ fontFamily: 'Poppins' }}
+          >
+            <button 
+              className="absolute top-8 right-8 text-gray-400 hover:text-gray-700 transition z-10"
+              onClick={() => setIsLoginOpen(false)}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-white">
+              <img src="/assets/login-illustration.png" alt="Login Illustration" className="w-full max-w-[500px] object-contain" />
+            </div>
+            <div className="w-full md:w-1/2 flex flex-col justify-center px-10 lg:px-24 py-12 relative bg-white">
+              <div className="flex justify-center mb-10">
+                <img src="/assets/login-logo.png" alt="ETALASE" className="h-[120px] object-contain" />
+              </div>
+              <h2 className="text-[40px] font-medium text-[#142B42] mb-2 text-center">
+                Log in to your account
+              </h2>
+              <p className="text-[18px] text-[#7B8EA0] font-medium mb-12 text-center">
+                welcome back! Please enter your detail
+              </p>
+              <div className="max-w-[520px] w-full mx-auto">
+                <div className="mb-8">
+                  <label className="block text-[16px] text-[#142B42] font-medium mb-3 ml-2">Username</label>
+                  <input 
+                    type="text" 
+                    placeholder="@ecapirank" 
+                    className="w-full h-[60px] bg-[#F2F5FF] rounded-[16px] px-6 text-[16px] text-[#142B42] font-medium outline-none border-2 border-transparent focus:border-[#4F83F5] transition-colors placeholder:text-[#142B42]" 
+                  />
+                </div>
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-3 px-2">
+                      <label className="text-[16px] text-[#142B42] font-medium">PIN</label>
+                      <button 
+                        onClick={() => setShowPin(!showPin)}
+                        className="text-[#7B8EA0] hover:text-[#142B42] transition-colors"
+                      >
+                        {showPin ? (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      {[0, 1, 2, 3].map((index) => (
+                        <input 
+                          key={index} 
+                          ref={(el) => { pinRefs.current[index] = el }}
+                          type={showPin ? "text" : "password"}
+                          maxLength={1} 
+                          value={pin[index]}
+                          onChange={(e) => handlePinChange(index, e.target.value)}
+                          onKeyDown={(e) => handlePinKeyDown(index, e)}
+                          className="w-[118px] h-[114px] bg-[#F2F5FF] rounded-[10px] text-center text-[40px] font-bold text-[#142B42] outline-none border-2 border-transparent focus:border-[#4F83F5] transition-colors [&::-ms-reveal]:hidden [&::-ms-clear]:hidden" 
+                        />
+                      ))}
+                    </div>
+                  </div><div className="text-right mt-4">
+                  <a href="#" className="text-[#F14646] font-medium text-[16px] hover:underline pr-2">lupa PIN</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </QueryClientProvider>
   )
 }

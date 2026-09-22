@@ -13,14 +13,8 @@ interface JurnalListProps {
   onCardClick: (id: string) => void
   onHover?: (id: string, date: string) => void
   onLeaveHover?: () => void
-  lineTargetId?: string | null  // card yang sedang dituju FuturisticLine
-  /** If provided, infinite scroll uses this ref's scroll instead of window scroll */
+  lineTargetId?: string | null
   scrollContainerRef?: React.RefObject<HTMLDivElement>
-  /**
-   * Ref yang dikontrol parent. Saat bernilai true, IntersectionObserver
-   * tidak akan menimpa activeId/activeDate (dipakai saat programmatic scroll
-   * dari klik tanggal kalender agar tidak terjadi race condition).
-   */
   navigatingRef?: React.MutableRefObject<boolean>
 }
 
@@ -64,14 +58,11 @@ export const JurnalList: React.FC<JurnalListProps> = ({
 
   const observerRef = useRef<IntersectionObserver | null>(null)
 
-  // Intersection observer — gunakan root dari scrollContainerRef jika ada
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect()
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        // Jika parent sedang melakukan programmatic scroll (dari klik kalender),
-        // abaikan semua intersection event agar tidak terjadi race condition.
         if (navigatingRef?.current) return
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -97,77 +88,86 @@ export const JurnalList: React.FC<JurnalListProps> = ({
     return () => observerRef.current?.disconnect()
   }, [data, setActiveId, onActiveDateChange, scrollContainerRef])
 
-  // Infinite scroll — gunakan scroll container jika ada, fallback ke window
-  useEffect(() => {
-    const container = scrollContainerRef?.current
-
-    const handleScroll = (e: Event) => {
-      const target = e.target as HTMLElement
-      const scrolledToBottom = container
-        ? target.scrollTop + target.clientHeight >= target.scrollHeight - 300
-        : window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 300
-
-      if (scrolledToBottom && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage()
-      }
-    }
-
-    if (container) {
-      container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
-    } else {
-      window.addEventListener('scroll', handleScroll)
-      return () => window.removeEventListener('scroll', handleScroll)
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollContainerRef])
-
-  if (isLoading) {
-    return <div className="py-12 text-center text-[var(--color-text-muted)] font-mono">Memuat arsip...</div>
-  }
-
-  if (isError) {
-    return <div className="py-12 text-center text-red-500 font-mono">Error: {(error as Error).message}</div>
-  }
-
-  const pages = data?.pages || []
-  const allItems = pages.flatMap(page => page?.data || [])
-
-  if (allItems.length === 0) {
-    return (
-      <div className="py-12 text-center text-[var(--color-text-muted)]">
-        <p className="mb-4">Tidak ada jurnal kegiatan ditemukan.</p>
-      </div>
-    )
-  }
+  // MOCK DATA FOR FRONTEND PURPOSES
+  const allItems = Array.from({ length: 6 }).map((_, i) => ({
+    id: `mock-${i}`,
+    judul: 'Penerimaan Data Parpol Berkelanjutan dari KPU Kebumen',
+    tanggal_kegiatan: '2026-07-07',
+    kategori: 'rapat',
+    thumbnail_url: null,
+    pihak_terkait: [],
+    tags: [{ nama: 'Parpol' }, { nama: 'Pengawasan' }]
+  }))
 
   return (
-    <div className="jurnal-list-container">
-      {allItems.map((item, idx) => {
-        const delayMs = idx < 5 ? `${idx * 120 + 200}ms` : '0ms'
-        return (
-          <JurnalCard
-            key={item.id}
-            id={item.id}
-            judul={item.judul}
-            tanggal_kegiatan={item.tanggal_kegiatan}
-            kategori={item.kategori}
-            thumbnail_url={item.thumbnail_url}
-            pihak_terkait={item.pihak_terkait}
-            tags={item.tags}
-            isActive={activeId === item.id}
-            isLineTarget={lineTargetId === item.id}
-            staggerDelay={delayMs}
-            onClick={() => onCardClick(item.id)}
-            onHover={onHover}
-            onLeaveHover={onLeaveHover}
-          />
-        )
-      })}
+    <div className="flex flex-col w-full pb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {allItems.map((item, idx) => {
+          const delayMs = idx < 5 ? `${idx * 120 + 200}ms` : '0ms'
+          return (
+            <JurnalCard
+              key={item.id}
+              id={item.id}
+              judul={item.judul}
+              tanggal_kegiatan={item.tanggal_kegiatan}
+              kategori={item.kategori}
+              thumbnail_url={item.thumbnail_url}
+              pihak_terkait={item.pihak_terkait}
+              tags={item.tags}
+              isActive={activeId === item.id}
+              isLineTarget={lineTargetId === item.id}
+              onClick={() => onCardClick(item.id)}
+              onHover={onHover}
+              onLeaveHover={onLeaveHover}
+              staggerDelay={delayMs}
+            />
+          )
+        })}
+      </div>
       {isFetchingNextPage && (
         <div className="py-6 text-center text-[var(--color-text-muted)] font-mono text-xs">
           Memuat lebih banyak...
         </div>
       )}
+
+      {/* Pagination (Matching Figma exactly) */}
+      <div className="flex justify-center items-center mt-12 mb-8" style={{ fontFamily: 'Poppins' }}>
+        <div className="inline-flex items-center gap-2 px-3.5 py-[6px] border border-[#C6D2E8] rounded-full bg-white backdrop-blur-sm shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+          {/* Prev Button */}
+          <button className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] border border-[#DCE4F0] bg-white text-[#142B42] hover:bg-gray-50 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18L9 12L15 6" />
+            </svg>
+          </button>
+          
+          {/* Page 1 (Active) */}
+          <button className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] bg-[#F7921C] text-white font-bold text-[15px]">
+            1
+          </button>
+          
+          {/* Page 2 */}
+          <button className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] border border-[#DCE4F0] bg-white text-[#142B42] font-bold text-[15px] hover:bg-gray-50 transition-colors">
+            2
+          </button>
+          
+          {/* Ellipsis */}
+          <span className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] border border-[#DCE4F0] bg-white text-[#142B42] font-bold text-[15px]">
+            ...
+          </span>
+          
+          {/* Page 15 */}
+          <button className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] border border-[#DCE4F0] bg-white text-[#142B42] font-bold text-[15px] hover:bg-gray-50 transition-colors">
+            15
+          </button>
+          
+          {/* Next Button */}
+          <button className="w-[42px] h-[38px] flex items-center justify-center rounded-[12px] border border-[#DCE4F0] bg-white text-[#142B42] hover:bg-gray-50 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18L15 12L9 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

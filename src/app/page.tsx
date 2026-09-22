@@ -1,9 +1,14 @@
 import { Suspense } from 'react'
 import LandingView from '@/views/landing'
-import { getHeroSettings } from '@/entities/site-settings/api/get-site-settings'
+// import { getHeroSettings } from '@/entities/site-settings/api/get-site-settings'
 
 export default async function Home() {
-  const hero = await getHeroSettings()
+  // Mock data temporarily so we can focus on frontend without needing Docker/DB
+  const hero = {
+    imagePath: '/assets/banner-image.jpg',
+    title: 'ETALASE',
+    subtitle: 'Arsip Jurnal Bawaslu Kebumen'
+  }
 
   return (
     <Suspense fallback={<div className="min-h-screen bg-[var(--color-ink)] text-[var(--color-text-inverse-muted)] flex items-center justify-center font-mono">Memuat beranda...</div>}>
