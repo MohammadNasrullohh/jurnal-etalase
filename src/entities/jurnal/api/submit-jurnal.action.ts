@@ -39,7 +39,7 @@ export async function submitJurnalAction(payload: JurnalSubmissionPayload) {
       custom_fields: validatedData.custom_fields,
       tags: validatedData.tags,
       is_published: validatedData.is_published,
-      workflow_status: 'publish_pending',
+      workflow_status: (user.division?.name?.toLowerCase().includes('kasubag') || user.role?.can_approve || user.role?.is_superadmin) ? 'published' : 'publish_pending',
       redaksi: user.name,
       divisi: user.division?.name || 'Staf',
     };

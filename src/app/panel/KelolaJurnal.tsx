@@ -124,7 +124,7 @@ export default function KelolaJurnal({ workspace, error }: { workspace: JurnalWo
   const endItemIdx = Math.min(validCurrentPage * itemsPerPage, filteredItems.length);
 
   return (
-    <div className="flex-1 p-6 md:p-10 flex flex-col h-full overflow-y-auto">
+    <div className="flex-1 p-6 md:p-10 flex flex-col">
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-semibold transition-all animate-fade-in

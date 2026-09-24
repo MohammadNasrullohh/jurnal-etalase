@@ -126,6 +126,7 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
       const payload = {
         id: activeMenu === 'edit' && editId ? editId : undefined,
         judul,
+        ringkasan,
         tanggal_kegiatan: tanggalKegiatan,
         kategori,
         is_published: !isPrivat,

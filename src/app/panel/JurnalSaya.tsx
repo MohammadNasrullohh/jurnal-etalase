@@ -87,7 +87,7 @@ export default function JurnalSaya({ workspace, error }: { workspace: JurnalWork
   }
 
   return (
-    <div className="flex-1 p-6 md:p-10 flex flex-col h-full overflow-y-auto w-full max-w-[1200px] mx-auto">
+    <div className="flex-1 p-6 md:p-10 flex flex-col w-full max-w-[1200px] mx-auto">
       {toast && (
         <div className={`fixed top-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-semibold transition-all animate-fade-in
           ${toast.type === 'error' ? 'bg-red-500' : toast.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`}>
