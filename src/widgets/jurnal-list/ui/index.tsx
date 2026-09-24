@@ -108,6 +108,7 @@ export const JurnalList: React.FC<JurnalListProps> = ({
                 key={item.id}
                 id={item.id}
                 judul={item.judul}
+                  ringkasan={item.ringkasan}
                 tanggal_kegiatan={item.tanggal_kegiatan}
                 kategori={item.kategori}
                 thumbnail_url={item.thumbnail_url}

@@ -7,7 +7,7 @@ interface JurnalCardProps {
   tanggal_kegiatan: string
   kategori: string
   thumbnail_url?: string | null
-  uraian_kegiatan?: string
+  ringkasan?: string | null
   pihak_terkait?: any[]
   tags?: any[]
   isActive?: boolean
@@ -24,7 +24,7 @@ export const JurnalCard: React.FC<JurnalCardProps> = ({
   tanggal_kegiatan,
   kategori,
   thumbnail_url,
-  uraian_kegiatan,
+  ringkasan,
   pihak_terkait = [],
   tags = [],
   isActive = false,
@@ -94,7 +94,7 @@ export const JurnalCard: React.FC<JurnalCardProps> = ({
         </h3>
 
         <div className="text-[13px] text-[#5D6A77] line-clamp-3 mb-4 leading-relaxed flex-1" style={{ fontFamily: 'Poppins' }}>
-          {uraian_kegiatan || 'Bawaslu mendorong agar KPU menyediakan pelayanan dan akses keterbukaan informasi yang optimal, termasuk penyediaan helpdesk atau hotline khusus bagi pengawas pemilu, partai politik, dan masyarakat.'}
+          {ringkasan || 'Tidak ada ringkasan yang tersedia.'}
         </div>
 
         {/* Metadata (Date and Tags) */}
