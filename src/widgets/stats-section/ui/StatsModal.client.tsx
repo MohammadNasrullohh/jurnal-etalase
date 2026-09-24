@@ -79,6 +79,16 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
     total: item.total
   })) || barData;
 
+  const actualDailyTrend = data?.daily_trend?.length ? data.daily_trend : [
+    { day: 'Sen', total: 0 },
+    { day: 'Sel', total: 0 },
+    { day: 'Rab', total: 0 },
+    { day: 'Kam', total: 0 },
+    { day: 'Jum', total: 0 },
+    { day: 'Sab', total: 0 },
+    { day: 'Min', total: 0 },
+  ];
+
   const actualPieData = data?.stats ? Object.entries(data.stats).map(([key, val]) => ({
     name: getCategoryLabel(key) || key,
     value: val as number,
@@ -234,15 +244,7 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
                   <h3 className="text-[#142B42] text-[18px] font-semibold mb-4">Tren 7 hari</h3>
                   <div className="flex-1 w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={[
-                        { day: 'Sen', total: 215 },
-                        { day: 'Sel', total: 185 },
-                        { day: 'Rab', total: 205 },
-                        { day: 'Kam', total: 225 },
-                        { day: 'Jum', total: 205 },
-                        { day: 'Sab', total: 245 },
-                        { day: 'Min', total: 235 },
-                      ]} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                      <AreaChart data={actualDailyTrend} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                         <XAxis dataKey="day" axisLine={{ stroke: '#9CA3AF' }} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
@@ -353,15 +355,7 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
                   <h3 className="text-[#142B42] text-[18px] font-semibold mb-4">Tren 7 hari</h3>
                   <div className="flex-1 w-full min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={[
-                        { day: 'Sen', total: 130 },
-                        { day: 'Sel', total: 135 },
-                        { day: 'Rab', total: 135 },
-                        { day: 'Kam', total: 148 },
-                        { day: 'Jum', total: 152 },
-                        { day: 'Sab', total: 145 },
-                        { day: 'Min', total: 152 },
-                      ]} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                      <AreaChart data={actualDailyTrend} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                         <XAxis dataKey="day" axisLine={{ stroke: '#9CA3AF' }} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />

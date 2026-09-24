@@ -7,6 +7,11 @@ export interface MonthlyTrendItem {
   total: number
 }
 
+export interface DailyTrendItem {
+  day: string
+  total: number
+}
+
 export interface ActivityHighlight {
   id: string
   judul: string
@@ -32,6 +37,7 @@ export interface JurnalStatsAnalytics {
   mitra_stats: Record<string, number>
   media_stats: Record<string, number>
   monthly_trend: MonthlyTrendItem[]
+  daily_trend: DailyTrendItem[]
   division_stats: Record<string, number>
   kpi_summary: KpiSummary
   recent_highlights: ActivityHighlight[]
@@ -97,6 +103,34 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
       total: monthMap.get(m) ?? 0,
     }
   })
+
+
+  // 2.5 Tren 7 Hari Terakhir
+  const last7DaysRows = await db.execute(sql`
+    WITH last_7_days AS (
+      SELECT current_date - generate_series(6, 0, -1) AS d
+    )
+    SELECT 
+      l.d,
+      COALESCE(COUNT(j.id), 0)::int as total
+    FROM last_7_days l
+    LEFT JOIN ${jurnal} j ON DATE(j.tanggal_kegiatan) = l.d AND j.is_published = true
+    GROUP BY l.d
+    ORDER BY l.d ASC
+  `)
+  
+  const daysOfWeek = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+  const daily_trend: DailyTrendItem[] = []
+  
+  if (last7DaysRows && last7DaysRows.rows) {
+    for (const row of last7DaysRows.rows) {
+      const d = new Date(row.d as string)
+      daily_trend.push({
+        day: daysOfWeek[d.getDay()],
+        total: row.total as number
+      })
+    }
+  }
 
   // 3. Divisi
   const divRows = await db
@@ -261,6 +295,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     mitra_stats,
     media_stats,
     monthly_trend,
+    daily_trend,
     division_stats,
     kpi_summary,
     recent_highlights,
