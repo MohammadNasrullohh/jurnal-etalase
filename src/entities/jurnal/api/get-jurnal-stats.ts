@@ -69,6 +69,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     .where(
       and(
         eq(jurnal.is_published, true),
+          eq(jurnal.workflow_status, 'published'),
         sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}`
       )
     )
@@ -87,6 +88,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     .where(
       and(
         eq(jurnal.is_published, true),
+          eq(jurnal.workflow_status, 'published'),
         sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}`
       )
     )
@@ -142,6 +144,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     .where(
       and(
         eq(jurnal.is_published, true),
+          eq(jurnal.workflow_status, 'published'),
         sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}`
       )
     )
@@ -165,6 +168,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     .where(
       and(
         eq(jurnal.is_published, true),
+          eq(jurnal.workflow_status, 'published'),
         sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}`,
         sql`${jurnal.link_publikasi} IS NOT NULL AND TRIM(${jurnal.link_publikasi}) != ''`
       )
@@ -208,6 +212,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
         END
       ) AS partner
       WHERE ${jurnal.is_published} = true
+        AND ${jurnal.workflow_status} = 'published'
         AND EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}
     `)
     
@@ -271,6 +276,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     .where(
       and(
         eq(jurnal.is_published, true),
+          eq(jurnal.workflow_status, 'published'),
         sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}`
       )
     )
