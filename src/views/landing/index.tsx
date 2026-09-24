@@ -308,7 +308,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                   </div>
 
                   {/* Layer 3: The Floating Event Card ("8 Sept 2026") */}
-                  <div className="absolute bottom-[5%] right-[-10%] sm:right-[-5%] lg:right-[-5%] z-20 pointer-events-none drop-shadow-xl hover:scale-105 transition-transform duration-300">
+                  <div className="absolute bottom-[-8%] right-[-10%] sm:right-[-5%] lg:right-[-5%] z-20 pointer-events-none drop-shadow-xl hover:scale-105 transition-transform duration-300">
                     <img 
                       src="/assets/floating_event_card.png" 
                       alt="Event Card" 
