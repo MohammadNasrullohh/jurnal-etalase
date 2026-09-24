@@ -92,6 +92,28 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
   })).filter(x => x.value > 0) : pieData;
 
 
+  // Dummy data for Mitra modal
+  const dummyMitraStats = {
+    'Pemerintah Daerah': 145,
+    'Instansi Pendidikan': 118,
+    'Organisasi Masyarakat': 78,
+    'Swasta / Lainnya': 47
+  };
+  const actualMitraStats = data?.mitra_stats || dummyMitraStats;
+  const totalMitra = Object.values(actualMitraStats).reduce((a: any, b: any) => a + b, 0) || 1;
+  const mitraColors: Record<string, string> = {
+    'Pemerintah Daerah': '#60A5FA', // blue-400
+    'Instansi Pendidikan': '#A78BFA', // purple-400
+    'Organisasi Masyarakat': '#2DD4BF', // teal-400
+    'Swasta / Lainnya': '#FBBF24' // amber-400
+  };
+  const mitraChartData = Object.entries(actualMitraStats).map(([name, value]) => ({
+    name,
+    value: value as number,
+    color: mitraColors[name] || '#9CA3AF',
+    label: `${value} (${Math.round((value as number) / (totalMitra as number) * 100)}%)`
+  })).sort((a, b) => b.value - a.value);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -248,17 +270,59 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
           )}
 
           {activeCard === 'mitra' && (
-            <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
-              <div className="w-24 h-24 bg-[#E7F2FE] text-[#3B82F6] rounded-full flex items-center justify-center mb-8 shadow-inner">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div className="flex-1 flex flex-col h-full w-full">
+              <div className="mb-6">
+                <h2 className="text-[#142B42] text-[24px] font-bold">Mitra Kolaborasi</h2>
+                <p className="text-[#5D6A77] text-[14px]">Instansi yang Terlibat</p>
               </div>
-              <h2 className="text-[#142B42] text-[36px] font-bold mb-4">Mitra Kolaborasi</h2>
-              <div className="text-[#F7921C] text-[80px] font-black leading-none mb-6">
-                {data?.kpi_summary?.total_mitra || 0}
+              
+              <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+                {/* Left: Bar Chart */}
+                <div className="flex-[1.2] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <div className="flex-1 w-full min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={mitraChartData} layout="vertical" margin={{ top: 20, right: 60, left: 20, bottom: 0 }}>
+                        <XAxis type="number" hide />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12, fontWeight: 500 }} width={140} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} cursor={{fill: '#F3F4F6'}} />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                          {mitraChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                          <LabelList dataKey="label" position="right" fill="#6B7280" fontSize={12} fontWeight={600} />
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Right: Jenis Instansi */}
+                <div className="flex-[1] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <h3 className="text-[#142B42] text-[18px] font-semibold mb-2">Instansi</h3>
+                  <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0">
+                    <div className="w-full flex-1 min-h-[150px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={mitraChartData} cx="50%" cy="50%" innerRadius="45%" outerRadius="80%" paddingAngle={2} dataKey="value" stroke="none">
+                            {mitraChartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+                      {mitraChartData.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                          <span className="text-[12px] text-[#6B7280] font-medium">{item.name.replace('Instansi ', '').replace('Organisasi Masyarakat', 'Ormas').replace('Pemerintah Daerah', 'Pemda').replace('Swasta / Lainnya', 'Swasta/Lainnya')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-[#5D6A77] text-[16px] max-w-md">
-                Total instansi atau mitra terkait yang telah berpartisipasi dan berkolaborasi dalam berbagai kegiatan Bawaslu Kabupaten Kebumen.
-              </p>
             </div>
           )}
 

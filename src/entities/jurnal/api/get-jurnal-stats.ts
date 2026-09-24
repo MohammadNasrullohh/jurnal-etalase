@@ -29,6 +29,7 @@ export interface KpiSummary {
 
 export interface JurnalStatsAnalytics {
   stats: Record<string, number>
+  mitra_stats: Record<string, number>
   monthly_trend: MonthlyTrendItem[]
   division_stats: Record<string, number>
   kpi_summary: KpiSummary
@@ -128,13 +129,20 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     )
   const published_media_count = mediaCountRes[0]?.total ?? 0
 
-  // 5. Total Mitra Unik (dari pihak_terkait)
+    // 5. Total Mitra Unik (dari pihak_terkait) & Mitra Stats
   let total_mitra = 0
+  const mitra_stats: Record<string, number> = {
+    'Pemerintah Daerah': 0,
+    'Instansi Pendidikan': 0,
+    'Organisasi Masyarakat': 0,
+    'Swasta / Lainnya': 0
+  }
+
   try {
     const partnerRes: any = await db.execute(sql`
-      SELECT COUNT(DISTINCT TRIM(partner))::int AS count
+      SELECT partner->>'instansi' as instansi, partner->>'nama' as nama
       FROM ${jurnal},
-      jsonb_array_elements_text(
+      jsonb_array_elements(
         CASE
           WHEN jsonb_typeof(${jurnal.pihak_terkait}) = 'array' THEN ${jurnal.pihak_terkait}
           ELSE '[]'::jsonb
@@ -142,10 +150,32 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
       ) AS partner
       WHERE ${jurnal.is_published} = true
         AND EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan}) = ${year}
-        AND TRIM(partner) != ''
     `)
-    total_mitra = partnerRes.rows?.[0]?.count ? Number(partnerRes.rows[0].count) : 0
-  } catch {
+    
+    const uniqueMitras = new Set<string>()
+    
+    if (partnerRes && partnerRes.rows) {
+      for (const row of partnerRes.rows) {
+        const val = (row.instansi || row.nama || '').toString().trim().toLowerCase()
+        if (!val) continue
+        uniqueMitras.add(val)
+        
+        // Categorize
+        if (val.match(/pemda|dinas|pemerintah|bawaslu|kpu|kementerian|badan|desa|camat|kab|provinsi/i)) {
+          mitra_stats['Pemerintah Daerah']++
+        } else if (val.match(/sekolah|universitas|kampus|institut|akademi|sma|smp|sd|tk|politeknik|madrasah/i)) {
+          mitra_stats['Instansi Pendidikan']++
+        } else if (val.match(/lsm|ormas|forum|komunitas|yayasan|pemuda|masyarakat|pkk|karang taruna/i)) {
+          mitra_stats['Organisasi Masyarakat']++
+        } else {
+          mitra_stats['Swasta / Lainnya']++
+        }
+      }
+    }
+    
+    total_mitra = uniqueMitras.size
+  } catch (e) {
+    console.error('Error fetching mitra:', e)
     total_mitra = 0
   }
 
@@ -203,6 +233,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
 
   return {
     stats,
+    mitra_stats,
     monthly_trend,
     division_stats,
     kpi_summary,
