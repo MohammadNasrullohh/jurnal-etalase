@@ -40,8 +40,6 @@ export async function submitJurnalAction(payload: JurnalSubmissionPayload) {
       tags: validatedData.tags,
       is_published: validatedData.is_published,
       workflow_status: (user.division?.name?.toLowerCase().includes('kasubag') || user.role?.can_approve || user.role?.is_superadmin) ? 'published' : 'publish_pending',
-      redaksi: user.name,
-      divisi: user.division?.name || 'Staf',
     };
 
     if (isUpdate) {
@@ -54,6 +52,8 @@ export async function submitJurnalAction(payload: JurnalSubmissionPayload) {
         id: sourceId,
         source_id: sourceId,
         ...data,
+        redaksi: user.name,
+        divisi: user.division?.name || 'Staf',
         version: 1,
       });
     }
