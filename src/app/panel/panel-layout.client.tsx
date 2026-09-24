@@ -275,7 +275,7 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex bg-[#F4F7FB]" style={{ fontFamily: 'Poppins' }}>
+      <div className="h-screen flex overflow-y-auto bg-[#F4F7FB]" style={{ fontFamily: 'Poppins' }}>
         
         {/* TOAST NOTIFICATION */}
       {toast && (
@@ -290,7 +290,7 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
       )}
 
       {/* SIDEBAR */}
-      <aside className="w-[417px] bg-[#F1F6FC] border-r border-[#87BFFF]/80 flex flex-col justify-between shrink-0">
+      <aside className="w-[417px] bg-[#F1F6FC] border-r border-[#87BFFF]/80 flex flex-col justify-between shrink-0 sticky top-0 h-screen overflow-y-auto">
         
         <div>
           {/* Logo */}
@@ -410,7 +410,7 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#F1F6FC]">
+      <main className="flex-1 flex flex-col min-h-screen bg-[#F1F6FC]">
         
         {/* Dynamic Header */}
           <header className="h-[143px] bg-[#F1F6FC] border-b border-[#87BFFF]/80 flex items-center px-10 shrink-0">
