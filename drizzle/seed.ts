@@ -96,7 +96,7 @@ async function main() {
       source_id: "c1c1c1c1-3333-3333-3333-333333333333",
       judul: "Bawaslu Kebumen Teken MoU Dengan UPB terkait Pengawasan Partisipatif",
       tanggal_kegiatan: "2026-05-10",
-      kategori: "mou",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/mou-upb",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=60", caption: "Penandatanganan Dokumen MoU oleh Bawaslu dan UPB", type: "image" }
@@ -121,7 +121,7 @@ async function main() {
       source_id: "c2c2c2c2-3333-3333-3333-333333333333",
       judul: "Audiensi Bawaslu Terkait Kesiapan Anggaran Pilkada Serentak 2026",
       tanggal_kegiatan: "2026-06-15",
-      kategori: "audiensi",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/audiensi-pilkada",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&auto=format&fit=crop&q=60", caption: "Pertemuan Audiensi dengan Bupati Kebumen", type: "image" }
@@ -143,7 +143,7 @@ async function main() {
       source_id: "c3c3c3c3-3333-3333-3333-333333333333",
       judul: "Bawaslu Gelar Sidang Sengketa Pendaftaran Calon Independen",
       tanggal_kegiatan: "2026-07-05",
-      kategori: "sengketa",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/sidang-sengketa-independen",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=60", caption: "Suasana Ruang Sidang Utama Bawaslu Kebumen", type: "image" }
@@ -166,7 +166,7 @@ async function main() {
       source_id: "c4c4c4c4-3333-3333-3333-333333333333",
       judul: "Pelaporan Temuan Dugaan Pelanggaran Netralitas ASN",
       tanggal_kegiatan: "2026-08-12",
-      kategori: "pelaporan",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: null,
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=60", caption: "Penerhan berkas temuan pelanggaran", type: "image" }
@@ -187,7 +187,7 @@ async function main() {
       source_id: "e1e1e1e1-1111-1111-1111-111111111111",
       judul: "Sosialisasi Pengawasan Pemilu Partisipatif dengan Tokoh Masyarakat",
       tanggal_kegiatan: "2026-05-15",
-      kategori: "audiensi",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/sosialisasi-partisipatif",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=60", caption: "Foto bersama peserta sosialisasi", type: "image" }
@@ -209,7 +209,7 @@ async function main() {
       source_id: "e2e2e2e2-2222-2222-2222-222222222222",
       judul: "Penandatanganan Perjanjian Kerja Sama Pengawasan dengan Kwartir Cabang Pramuka",
       tanggal_kegiatan: "2026-05-20",
-      kategori: "mou",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/mou-pramuka",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=600&auto=format&fit=crop&q=60", caption: "Penandatanganan bersama Kwarcab Pramuka", type: "image" }
@@ -230,7 +230,7 @@ async function main() {
       source_id: "e3e3e3e3-3333-3333-3333-333333333333",
       judul: "Bawaslu Kebumen Lakukan Patroli Pengawasan Hak Pilih di Wilayah Pesisir",
       tanggal_kegiatan: "2026-06-02",
-      kategori: "lainnya",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/patroli-hak-pilih",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=60", caption: "Patroli Bawaslu di Pantai Kebumen", type: "image" }
@@ -249,7 +249,7 @@ async function main() {
       source_id: "e4e4e4e4-4444-4444-4444-444444444444",
       judul: "Mediasi Penyelesaian Sengketa Cepat di Tingkat Kecamatan Karanganyar",
       tanggal_kegiatan: "2026-06-25",
-      kategori: "sengketa",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/mediasi-karanganyar",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=60", caption: "Proses mediasi termohon dan pemohon", type: "image" }
@@ -271,7 +271,7 @@ async function main() {
       source_id: "e5e5e5e5-5555-5555-5555-555555555555",
       judul: "Laporan Dugaan Politik Uang Selama Masa Kampanye",
       tanggal_kegiatan: "2026-07-12",
-      kategori: "pelaporan",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: null,
       dokumentasi: [],
       dokumen_pendukung: [
@@ -290,7 +290,7 @@ async function main() {
       source_id: "e6e6e6e6-6666-6666-6666-666666666666",
       judul: "Pelantikan dan Pembekalan Panwaslu Kelurahan/Desa se-Kabupaten Kebumen",
       tanggal_kegiatan: "2026-07-18",
-      kategori: "lainnya",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/pelantikan-pkd",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&auto=format&fit=crop&q=60", caption: "Budi Santoso mengambil sumpah janji PKD", type: "image" }
@@ -311,7 +311,7 @@ async function main() {
       source_id: "e7e7e7e7-7777-7777-7777-777777777777",
       judul: "MoU Sinergi Pengawasan Pemilu dengan PWI Kebumen",
       tanggal_kegiatan: "2026-07-28",
-      kategori: "mou",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/mou-pwi",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&auto=format&fit=crop&q=60", caption: "Penandatanganan kerjasama pers", type: "image" }
@@ -332,7 +332,7 @@ async function main() {
       source_id: "e8e8e8e8-8888-8888-8888-888888888888",
       judul: "Rapat Koordinasi Evaluasi Pengawasan Logistik Tahap Pertama",
       tanggal_kegiatan: "2026-08-05",
-      kategori: "audiensi",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/rakor-logistik",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=60", caption: "Suasana rakor evaluasi logistik", type: "image" }
@@ -354,7 +354,7 @@ async function main() {
       source_id: "e9e9e9e9-9999-9999-9999-999933333333",
       judul: "Temuan Pelanggaran Administrasi Pendaftaran Pemilih di Kecamatan Alian",
       tanggal_kegiatan: "2026-08-20",
-      kategori: "pelaporan",
+      kategori: "Penanganan Pelanggaran",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/temuan-pantarlih-alian",
       dokumentasi: [],
       dokumen_pendukung: [
@@ -373,7 +373,7 @@ async function main() {
       source_id: "fa1fa1fa-1111-1111-1111-111111111111",
       judul: "Sidang Pleno Rekomendasi Hasil Temuan Coklit Pemilih Disabilitas",
       tanggal_kegiatan: "2026-08-24",
-      kategori: "sengketa",
+      kategori: "Penyelesaian Sengketa",
       link_publikasi: "https://kebumen.bawaslu.go.id/berita/sidang-pleno-disabilitas",
       dokumentasi: [
         { url: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=60", caption: "Sidang pleno pimpinan Bawaslu", type: "image" }
