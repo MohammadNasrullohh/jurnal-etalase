@@ -209,12 +209,11 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
                                     key={idx} 
                                     className="flex items-start gap-2 cursor-pointer group"
                                     onClick={(e) => {
-                                      e.stopPropagation();
-                                      if(onEventClick) onEventClick();
-                                      // Set url parameter to filter landing page, simulating opening the journal
-                                      router.push(`/?date=${year}-${String(month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}#section-jurnal`);
-                                      setSelectedDate(null);
-                                    }}
+                                        e.stopPropagation();
+                                        if(onEventClick) onEventClick();
+                                        router.push(`/?jurnalId=${evt.id}`);
+                                        setSelectedDate(null);
+                                      }}
                                   >
                                     <div className="w-1.5 h-1.5 rounded-full bg-[#F7921C] mt-1.5 shrink-0 group-hover:scale-125 transition-transform"></div>
                                     <span className="text-[12px] text-[#5D6A77] font-medium leading-tight group-hover:text-[#346BFF] transition-colors text-left">{evt.judul}</span>
