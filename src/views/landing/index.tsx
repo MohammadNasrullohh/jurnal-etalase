@@ -233,53 +233,53 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
             </div>
 
             {/* Left Content */}
-            <div className="w-full lg:w-[45%] flex flex-col pt-8 z-20">
-              <h2 className="text-[#142B42] text-[22px] md:text-[26px] font-medium mb-4" style={{ fontFamily: 'Poppins' }}>
-                Selamat Datang di
-              </h2>
-              
-              <div className="flex items-center gap-5 md:gap-6 mb-6">
-                {/* Left: Giant Circular Icon */}
-                <img 
-                  src="/assets/hero-logo-left.png" 
-                  alt="ETALASE Icon" 
-                  className="w-[110px] md:w-[140px] shrink-0 object-contain drop-shadow-md" 
-                />
+              <div className="w-full lg:w-[50%] flex flex-col pt-4 lg:pt-12 z-20">
+                <h2 className="text-[#394B5D] text-[20px] md:text-[24px] font-semibold mb-5" style={{ fontFamily: 'Poppins' }}>
+                  Selamat Datang di
+                </h2>
                 
-                {/* Right: Stack of ETALASE Text + Arsip Langkah */}
-                <div className="flex flex-col justify-center">
+                <div className="flex items-center gap-5 md:gap-8 mb-6">
+                  {/* Left: Giant Circular Icon */}
                   <img 
-                    src="/assets/hero-logo-etalase.png" 
-                    alt="ETALASE Text" 
-                    className="w-[180px] md:w-[240px] mb-2 object-contain" 
+                    src="/assets/hero-logo-left.png" 
+                    alt="ETALASE Icon" 
+                    className="w-[120px] md:w-[155px] shrink-0 object-contain drop-shadow-lg" 
                   />
-                  <h1 className="text-[#142B42] text-[22px] md:text-[26px] leading-[1.35] font-medium tracking-tight" style={{ fontFamily: 'Poppins' }}>
-                    Arsip Jurnal Bawaslu<br/>Kebumen
-                  </h1>
+                  
+                  {/* Right: Stack of ETALASE Text + Arsip Langkah */}
+                  <div className="flex flex-col justify-center">
+                    <img 
+                      src="/assets/hero-logo-etalase.png" 
+                      alt="ETALASE Text" 
+                      className="w-[190px] md:w-[260px] mb-3 object-contain" 
+                    />
+                    <h1 className="text-[#2C3E50] text-[24px] md:text-[28px] leading-[1.3] font-medium tracking-tight" style={{ fontFamily: 'Poppins' }}>
+                      Arsip Jurnal Bawaslu<br/>Kebumen
+                    </h1>
+                  </div>
+                </div>
+
+                <p className="text-[#5D6A77] text-[15px] md:text-[17px] leading-[1.75] max-w-[520px] mb-10 font-medium" style={{ fontFamily: 'Poppins' }}>
+                  Temukan, jelajahi, dan akses informasi arsip, serta jurnal Bawaslu Kebumen dengan mudah dan terstruktur dalam satu platform
+                </p>
+
+                <div className="flex flex-row flex-nowrap gap-4 md:gap-5 w-full">
+                  <button 
+                    onClick={() => document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="bg-[#FCA035] text-white px-6 md:px-10 py-3.5 md:py-4 rounded-full font-semibold text-[15px] hover:bg-[#e68d27] transition-all hover:-translate-y-0.5 shadow-[0_8px_16px_rgba(252,160,53,0.3)] whitespace-nowrap"
+                  >
+                    Lihat Kalender
+                  </button>
+                  <button 
+                    onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="bg-transparent text-[#FCA035] border-[2px] border-[#FCA035] px-6 md:px-10 py-3.5 md:py-4 rounded-full font-semibold text-[15px] hover:bg-[#FFF5EA] transition-colors whitespace-nowrap"
+                  >
+                    Jelajahi Kami
+                  </button>
                 </div>
               </div>
 
-              <p className="text-[#5D6A77] text-[15px] md:text-[16px] leading-[1.7] max-w-[480px] mb-10 font-medium" style={{ fontFamily: 'Poppins' }}>
-                Temukan, jelajahi, dan akses informasi arsip, serta jurnal Bawaslu Kebumen dengan mudah dan terstruktur dalam satu platform
-              </p>
-
-              <div className="flex flex-wrap gap-4">
-                <button 
-                  onClick={() => document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-[#F7921C] text-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#e08519] transition-all hover:-translate-y-1 shadow-[0_10px_20px_rgba(247,146,28,0.3)]"
-                >
-                  Lihat Kalender
-                </button>
-                <button 
-                  onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-transparent text-[#F7921C] border-2 border-[#F7921C] px-8 py-3.5 rounded-full font-semibold hover:bg-[#FFF3E5] transition-colors"
-                >
-                  Jelajahi Kami
-                </button>
-              </div>
-            </div>
-
-            {/* Right Content - The Calendars */}
+              {/* Right Content - The Calendars */}
             <div className="w-full lg:w-[50%] flex justify-center lg:justify-end mt-16 lg:mt-0 relative z-20">
               <div className="relative w-full max-w-[650px] aspect-square flex items-center justify-center">
                 
