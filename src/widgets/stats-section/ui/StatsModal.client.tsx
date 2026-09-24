@@ -46,6 +46,14 @@ const barData = [
   { date: '15', total: 74 },
 ]
 
+// Dummy data for Berita modal
+const beritaPieData = [
+  { name: 'Pendidikan', value: 30, color: '#6366F1' },
+  { name: 'Pemda', value: 45, color: '#F87171' },
+  { name: 'Swasta', value: 20, color: '#FBBF24' },
+  { name: 'Lainnya', value: 5, color: '#38BDF8' },
+];
+
 // Pie Chart data matching the exact Figma colors
 const pieData = [
   { name: 'Sosialisasi', value: 400, color: '#706EE7' },
@@ -255,17 +263,64 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
           )}
 
           {activeCard === 'berita' && (
-            <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
-              <div className="w-24 h-24 bg-[#FFF3E5] text-[#F7921C] rounded-full flex items-center justify-center mb-8 shadow-inner">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><line x1="11.5" y1="14.5" x2="14" y2="17"/></svg>
+            <div className="flex-1 flex flex-col h-full w-full">
+              <div className="mb-6">
+                <h2 className="text-[#142B42] text-[24px] font-bold">Terekspos Berita</h2>
+                <p className="text-[#5D6A77] text-[14px]">Publikasi berita</p>
               </div>
-              <h2 className="text-[#142B42] text-[36px] font-bold mb-4">Terekspos Berita</h2>
-              <div className="text-[#3B82F6] text-[80px] font-black leading-none mb-6">
-                {data?.kpi_summary?.published_media_count || 0}
+              
+              <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+                {/* Left: Tren 7 hari */}
+                <div className="flex-[1.2] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <h3 className="text-[#142B42] text-[18px] font-semibold mb-4">Tren 7 hari</h3>
+                  <div className="flex-1 w-full min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={[
+                        { day: 'Sen', total: 130 },
+                        { day: 'Sel', total: 135 },
+                        { day: 'Rab', total: 135 },
+                        { day: 'Kam', total: 148 },
+                        { day: 'Jum', total: 152 },
+                        { day: 'Sab', total: 145 },
+                        { day: 'Min', total: 152 },
+                      ]} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                        <XAxis dataKey="day" axisLine={{ stroke: '#9CA3AF' }} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                        <Area type="monotone" dataKey="total" stroke="#3B82F6" strokeWidth={3} fill="#EFF6FF" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Right: Jenis Media */}
+                <div className="flex-[1] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <h3 className="text-[#142B42] text-[18px] font-semibold mb-2">Jenis Media</h3>
+                  <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0">
+                    <div className="w-full flex-1 min-h-[150px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={beritaPieData} cx="50%" cy="50%" innerRadius="45%" outerRadius="80%" paddingAngle={2} dataKey="value" stroke="none">
+                            {beritaPieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+                      {beritaPieData.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                          <span className="text-[12px] text-[#6B7280] font-medium">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-[#5D6A77] text-[16px] max-w-md">
-                Jumlah kegiatan publikasi jurnal yang berhasil terekspos ke media atau memiliki tautan liputan eksternal.
-              </p>
             </div>
           )}
 
