@@ -7,6 +7,7 @@ import { JurnalCard } from '@/entities/jurnal/ui/jurnal-card'
 interface JurnalListProps {
   q: string
   kategori: string
+  date?: string
   activeId: string | null
   setActiveId: (id: string | null) => void
   onActiveDateChange: (date: string) => void
@@ -21,6 +22,7 @@ interface JurnalListProps {
 export const JurnalList: React.FC<JurnalListProps> = ({
   q,
   kategori,
+  date,
   activeId,
   setActiveId,
   onActiveDateChange,
