@@ -81,7 +81,6 @@ function normalizeJurnal(
   item: JsonRecord,
   fallbackStatus: JurnalWorkflowStatus,
   scope: JurnalScope
-  is_published?: boolean,
 ): MyJurnalItem | null {
   const id = readString(item.id) || readString(item.source_id)
   const judul = readString(item.judul)
