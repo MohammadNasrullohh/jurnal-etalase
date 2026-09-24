@@ -86,19 +86,6 @@ export function JurnalSubmitForm() {
           />
         </div>
 
-                  {/* Ringkasan */}
-          <div>
-            <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono">Ringkasan Kegiatan *</label>
-            <textarea
-              required
-              rows={4}
-              value={payload.ringkasan || ''}
-              onChange={e => setPayload({ ...payload, ringkasan: e.target.value })}
-              className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]/60 focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm resize-y"
-              placeholder="Ceritakan secara singkat jalannya kegiatan..."
-            />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Tanggal */}
           <div>
@@ -131,19 +118,6 @@ export function JurnalSubmitForm() {
             </select>
           </div>
         </div>
-
-                  {/* Ringkasan */}
-          <div>
-            <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono">Ringkasan Kegiatan *</label>
-            <textarea
-              required
-              rows={4}
-              value={payload.ringkasan || ''}
-              onChange={e => setPayload({ ...payload, ringkasan: e.target.value })}
-              className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]/60 focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm resize-y"
-              placeholder="Ceritakan secara singkat jalannya kegiatan..."
-            />
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
