@@ -302,7 +302,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                     alt="ETALASE Calendar Illustration" 
                     className="w-full h-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
                     onClick={() => {
-                      document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })
+                      document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })
                     }} 
                   />
                 </div>
