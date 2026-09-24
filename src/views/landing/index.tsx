@@ -24,7 +24,7 @@ import { type LawetUser } from '@/entities/lawet-user'
 const queryClient = new QueryClient()
 
 const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubtitle: string; user: LawetUser | null; recentPhotos?: any[] }> = ({ heroImagePath, heroTitle, heroSubtitle, user, recentPhotos }) => {
-  const { q, kategori, tahun, setFilter, resetFilter } = useJurnalFilter()
+  const { q, kategori, tahun, date, setFilter, resetFilter } = useJurnalFilter()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeDate, setActiveDate] = useState<string | null>(null)
   const [selectedJurnalId, setSelectedJurnalId] = useState<string | null>(null)
@@ -308,11 +308,11 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                   </div>
 
                   {/* Layer 3: The Floating Event Card ("8 Sept 2026") */}
-                  <div className="absolute bottom-[2%] right-[5%] sm:right-[15%] z-20 pointer-events-none drop-shadow-2xl">
+                  <div className="absolute bottom-[5%] right-[-5%] sm:right-[5%] lg:right-[10%] z-20 pointer-events-none drop-shadow-xl hover:scale-105 transition-transform duration-300">
                     <img 
                       src="/assets/floating_event_card.png" 
                       alt="Event Card" 
-                      className="w-[200px] md:w-[260px] h-auto object-contain"
+                      className="w-[150px] md:w-[190px] h-auto object-contain"
                     />
                   </div>
                 </div>

@@ -219,7 +219,7 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if(onEventClick) onEventClick();
-                                            router.push(`/?q=${encodeURIComponent(evt.judul)}#section-arsip`);
+                                            router.push(`/?date=${year}-${String(month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}#section-arsip`);
                                             setSelectedDate(null);
                                           }}
                                         >

@@ -39,11 +39,12 @@ export const JurnalList: React.FC<JurnalListProps> = ({
     isError,
     isFetching
   } = useQuery({
-    queryKey: ['jurnals', q, kategori, page],
+    queryKey: ['jurnals', q, kategori, date, page],
     queryFn: () => {
       const url = new URL('/api/jurnal', window.location.origin)
       if (q) url.searchParams.set('q', q)
       if (kategori) url.searchParams.set('kategori', kategori)
+        if (date) url.searchParams.set('date', date)
       url.searchParams.set('cursor', page.toString()) // Backend now treats this as page
       url.searchParams.set('limit', '6') // Show 6 per page
       url.searchParams.set('view', 'summary')
