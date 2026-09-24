@@ -30,6 +30,18 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 
 }) => {
   const [zoomedImage, setZoomedImage] = React.useState<string | null>(null);
+  const [zoomedIndex, setZoomedIndex] = React.useState<number>(0);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (!zoomedImage) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setZoomedImage(null);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [zoomedImage]);
+
 
   const { data: response, isLoading } = useQuery({
 
@@ -208,7 +220,7 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 
                   {item.dokumentasi.map((doc: any, i: number) => (
 
-                    <img key={i} src={doc.url} alt={`Dokumentasi ${i+1}`} className="w-full h-[90px] object-cover rounded-[16px] cursor-pointer hover:scale-105 transition-transform shadow-sm" onClick={(e) => { e.stopPropagation(); setZoomedImage(doc.url); }} />
+                    <img key={i} src={doc.url} alt={`Dokumentasi ${i+1}`} className="w-full h-[90px] object-cover rounded-[16px] cursor-pointer hover:scale-105 transition-transform shadow-sm" onClick={(e) => { e.stopPropagation(); setZoomedIndex(i); setZoomedImage(doc.url); }} />
 
                   ))}
 
@@ -382,7 +394,67 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 
       </div>
 
+      {/* LIGHTBOX */}
+      {zoomedImage && item?.dokumentasi && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setZoomedImage(null)}
+        >
+          {/* Close button */}
+          <button
+            className="absolute top-5 right-5 z-10 text-white/70 hover:text-white p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all"
+            onClick={() => setZoomedImage(null)}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-[14px] font-semibold">
+            {zoomedIndex + 1} / {item.dokumentasi.length}
+          </div>
+
+          {/* Prev button */}
+          {item.dokumentasi.length > 1 && (
+            <button
+              className="absolute left-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIdx = (zoomedIndex - 1 + item.dokumentasi.length) % item.dokumentasi.length;
+                setZoomedIndex(newIdx);
+                setZoomedImage(item.dokumentasi[newIdx].url);
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={zoomedImage}
+            alt="Preview"
+            className="max-w-[90vw] max-h-[85vh] object-contain rounded-[12px] shadow-2xl animate-in fade-in zoom-in-90 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next button */}
+          {item.dokumentasi.length > 1 && (
+            <button
+              className="absolute right-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                const newIdx = (zoomedIndex + 1) % item.dokumentasi.length;
+                setZoomedIndex(newIdx);
+                setZoomedImage(item.dokumentasi[newIdx].url);
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          )}
+        </div>
+      )}
+
     </div>
+
 
   )
 
