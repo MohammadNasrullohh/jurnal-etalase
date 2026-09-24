@@ -1,8 +1,82 @@
-import React from 'react'
+"use client"
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
+const MONTH_NAMES = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+
+const DAY_NAMES = ['Ming', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void }) => {
+  const router = useRouter();
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 8, 1)); // September 2026 (0-indexed month 8)
+  const [activeDates, setActiveDates] = useState<number[]>([]);
+  const [eventsMap, setEventsMap] = useState<Record<number, { id: string, judul: string }[]>>({});
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  useEffect(() => {
+    const fetchCalendar = async () => {
+      setLoading(true);
+      try {
+        const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+        const res = await fetch(`/api/jurnal/calendar?month=${monthStr}`);
+        const data = await res.json();
+        if (data.status === 'ok') {
+          setActiveDates(data.data.dates || []);
+          setEventsMap(data.data.eventsMap || {});
+        } else {
+          setActiveDates([]);
+          setEventsMap({});
+        }
+      } catch (err) {
+        console.error(err);
+        setActiveDates([]);
+        setEventsMap({});
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCalendar();
+    setSelectedDate(null); // Reset popup on month change
+  }, [year, month]);
+
+  const handlePrevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
+
+  // Calendar logic
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const gridCells = [];
+  // Previous month days
+  for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+    gridCells.push({ day: daysInPrevMonth - i, isCurrentMonth: false });
+  }
+  // Current month days
+  for (let i = 1; i <= daysInMonth; i++) {
+    gridCells.push({ day: i, isCurrentMonth: true });
+  }
+  // Next month days to fill grid (either 35 or 42 cells)
+  const totalCells = gridCells.length > 35 ? 42 : 35;
+  let nextMonthDay = 1;
+  while (gridCells.length < totalCells) {
+    gridCells.push({ day: nextMonthDay++, isCurrentMonth: false });
+  }
+
+  const isToday = (d: number) => {
+    const today = new Date();
+    return d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+  };
+
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-4 md:px-10 mt-8 mb-12">
+    <section id="section-kalender" className="w-full max-w-[1440px] mx-auto px-4 md:px-10 mt-8 mb-12">
       <div className="w-full bg-white rounded-[32px] border border-[#E5E7EB] shadow-sm flex flex-col md:flex-row overflow-hidden min-h-[700px]" style={{ fontFamily: 'Poppins' }}>
         
         {/* Left Sidebar - Mini Calendar */}
@@ -17,60 +91,66 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
           </div>
 
           <div className="flex items-center justify-between mb-6 px-2">
-            <button className="text-gray-400 hover:text-gray-700">
+            <button onClick={handlePrevMonth} className="text-gray-400 hover:text-gray-700 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
-            <h3 className="text-[#142B42] text-[14px] font-medium">September 2026</h3>
-            <button className="text-gray-400 hover:text-gray-700">
+            <h3 className="text-[#142B42] text-[14px] font-medium">{MONTH_NAMES[month]} {year}</h3>
+            <button onClick={handleNextMonth} className="text-gray-400 hover:text-gray-700 transition-colors">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           </div>
 
           <div className="grid grid-cols-7 gap-y-4 text-center mb-4">
-            {['Ming', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
+            {DAY_NAMES.map((day) => (
               <div key={day} className="text-[#142B42] text-[12px] font-medium">{day}</div>
             ))}
             
-            {/* Empty days for offset */}
-            <div></div><div></div>
-
-            {/* Mini calendar days */}
-            {[...Array(30)].map((_, i) => {
-              const day = i + 1;
-              const isToday = day === 16;
-              const hasEvent = [1, 2, 4, 7, 13, 14].includes(day);
+            {gridCells.map((cell, i) => {
+              const hasEvent = cell.isCurrentMonth && activeDates.includes(cell.day);
+              const today = cell.isCurrentMonth && isToday(cell.day);
+              
+              if (!cell.isCurrentMonth) {
+                return <div key={i}></div>;
+              }
               
               return (
-                <div key={day} className="flex flex-col items-center justify-center gap-1 cursor-pointer">
-                  <span className={`text-[13px] font-medium w-7 h-7 flex items-center justify-center rounded-full ${isToday ? 'bg-[#346BFF] text-white' : 'text-[#5D6A77] hover:bg-gray-100'}`}>
-                    {day}
+                <div key={i} className="flex flex-col items-center justify-center gap-1 cursor-pointer">
+                  <span className={`text-[13px] font-medium w-7 h-7 flex items-center justify-center rounded-full ${today ? 'bg-[#346BFF] text-white' : 'text-[#5D6A77] hover:bg-gray-100'}`}>
+                    {cell.day}
                   </span>
-                  <div className={`w-3 h-[3px] rounded-full ${hasEvent ? 'bg-[#FFB054]' : 'bg-transparent'}`}></div>
+                  <div className={`w-3 h-[3px] rounded-full transition-colors ${hasEvent ? 'bg-[#FFB054]' : 'bg-transparent'}`}></div>
                 </div>
               );
             })}
           </div>
+
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            <h4 className="text-[#142B42] text-[14px] font-semibold mb-4">Keterangan</h4>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-3 h-3 rounded-full bg-[#FFB054]"></div>
+              <span className="text-[#5D6A77] text-[13px]">Ada Kegiatan Jurnal</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-[#346BFF]"></div>
+              <span className="text-[#5D6A77] text-[13px]">Hari Ini</span>
+            </div>
+          </div>
         </div>
 
-        {/* Right Area - Main Calendar */}
-        <div className="flex-1 bg-white flex flex-col">
+        {/* Right Main Content */}
+        <div className="flex-1 flex flex-col bg-white">
           {/* Header */}
-          <div className="flex items-center justify-between p-8 border-b border-[#E5E7EB]">
-            <div className="flex items-center gap-4">
-              <button className="text-gray-400 hover:text-gray-700 p-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <div className="flex items-center justify-between px-8 py-6 border-b border-[#E5E7EB]">
+            <div className="flex items-center gap-6">
+              <button onClick={handlePrevMonth} className="text-gray-400 hover:text-gray-700 p-2 transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
               </button>
-              <h2 className="text-[#142B42] text-[24px] font-semibold">September 2026</h2>
-              <button className="text-gray-400 hover:text-gray-700 p-2">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+              <h2 className="text-[#142B42] text-[24px] font-semibold w-[220px] text-center">
+                {MONTH_NAMES[month]} {year}
+              </h2>
+              <button onClick={handleNextMonth} className="text-gray-400 hover:text-gray-700 p-2 transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </button>
-            </div>
-            
-            {/* View Toggle */}
-            <div className="flex items-center bg-[#F3F4F6] rounded-full p-1">
-              <button className="px-6 py-2 rounded-full text-[13px] font-medium text-[#5D6A77] hover:bg-white hover:shadow-sm transition-all">Hari</button>
-              <button className="px-6 py-2 rounded-full text-[13px] font-medium text-[#5D6A77] hover:bg-white hover:shadow-sm transition-all">Minggu</button>
-              <button className="px-6 py-2 rounded-full text-[13px] font-medium bg-[#142B42] text-white shadow-md transition-all">Bulan</button>
             </div>
           </div>
 
@@ -78,92 +158,76 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
           <div className="flex-1 flex flex-col">
             {/* Days Header */}
             <div className="grid grid-cols-7 border-b border-[#E5E7EB]">
-              {['Ming', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
-                <div key={day} className="py-4 px-4 text-[#142B42] text-[15px] font-semibold">
+              {DAY_NAMES.map((day) => (
+                <div key={day} className="py-4 px-4 text-[#142B42] text-[15px] font-semibold text-center border-r border-[#E5E7EB] last:border-r-0">
                   {day}
                 </div>
               ))}
             </div>
 
             {/* Grid Body */}
-            <div className="flex-1 grid grid-cols-7 grid-rows-5">
-              
-              {/* Row 1 */}
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#A0ABBB] text-[14px] font-medium">30</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#A0ABBB] text-[14px] font-medium">31</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">1</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">2</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">3</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">4</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">5</div>
+            <div className="flex-1 grid grid-cols-7 auto-rows-[minmax(120px,1fr)]">
+              {gridCells.map((cell, i) => {
+                const hasEvent = cell.isCurrentMonth && activeDates.includes(cell.day);
+                const isBorderR = (i + 1) % 7 !== 0;
+                const isBorderB = Math.floor(i / 7) < (gridCells.length / 7) - 1;
+                const today = cell.isCurrentMonth && isToday(cell.day);
 
-              {/* Row 2 */}
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">6</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">7</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">8</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">9</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">10</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">11</div>
-              <div className="border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">12</div>
+                return (
+                  <div key={i} className={`p-3 relative flex flex-col ${isBorderR ? 'border-r border-[#E5E7EB]' : ''} ${isBorderB ? 'border-b border-[#E5E7EB]' : ''}`}>
+                    <span className={`text-[14px] font-medium inline-flex items-center justify-center w-7 h-7 mb-2 ${!cell.isCurrentMonth ? 'text-[#A0ABBB]' : today ? 'bg-[#346BFF] text-white rounded-full' : 'text-[#142B42]'}`}>
+                      {cell.day}
+                    </span>
+                    
+                    {hasEvent && (
+                        <>
+                          <div 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedDate(selectedDate === cell.day ? null : cell.day);
+                            }} 
+                            className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1.5 rounded-[6px] truncate transition-all shadow-sm"
+                          >
+                            Ada Kegiatan
+                          </div>
 
-              {/* Row 3 */}
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">13</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="text-[#142B42] text-[14px] font-medium inline-block mb-2">14</span>
-                <div onClick={onEventClick} className="w-full bg-[#FFDFB8] hover:bg-[#ffc98a] cursor-pointer text-[#F7921C] text-[11px] font-semibold px-2 py-1 rounded-[4px] truncate transition-colors">
-                  Rapat Evaluasi
-                </div>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">15</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 relative">
-                <span className="bg-[#346BFF] text-white w-7 h-7 flex items-center justify-center rounded-full text-[14px] font-semibold mb-2">16</span>
-              </div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">17</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">18</div>
-              <div className="border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">19</div>
-
-              {/* Row 4 */}
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">20</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">21</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">22</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">23</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">24</div>
-              <div className="border-r border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">25</div>
-              <div className="border-b border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">26</div>
-
-              {/* Row 5 */}
-              <div className="border-r border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">27</div>
-              <div className="border-r border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">28</div>
-              <div className="border-r border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">29</div>
-              <div className="border-r border-[#E5E7EB] p-3 text-[#142B42] text-[14px] font-medium">30</div>
-              <div className="border-r border-[#E5E7EB] p-3 text-[#A0ABBB] text-[14px] font-medium">1</div>
-              <div className="border-r border-[#E5E7EB] p-3 text-[#A0ABBB] text-[14px] font-medium">2</div>
-              <div className="p-3 text-[#A0ABBB] text-[14px] font-medium">3</div>
+                          {/* Popup Detail */}
+                          {selectedDate === cell.day && (
+                            <div className="absolute top-[80%] left-1/2 -translate-x-1/2 z-50 w-[240px] bg-white rounded-[19px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-[#FEB143]/30 p-4"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center justify-between text-[#F7921C] mb-3">
+                                <div className="flex items-center gap-2">
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                  <span className="text-[13px] font-bold">{cell.day} {MONTH_NAMES[month].substring(0,3)} {year}</span>
+                                </div>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                              </div>
+                              <ul className="space-y-2">
+                                {eventsMap[cell.day]?.map((evt, idx) => (
+                                  <li 
+                                    key={idx} 
+                                    className="flex items-start gap-2 cursor-pointer group"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if(onEventClick) onEventClick();
+                                      // Set url parameter to filter landing page, simulating opening the journal
+                                      router.push(`/?date=${year}-${String(month + 1).padStart(2, '0')}-${String(cell.day).padStart(2, '0')}#section-jurnal`);
+                                      setSelectedDate(null);
+                                    }}
+                                  >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#F7921C] mt-1.5 shrink-0 group-hover:scale-125 transition-transform"></div>
+                                    <span className="text-[12px] text-[#5D6A77] font-medium leading-tight group-hover:text-[#346BFF] transition-colors text-left">{evt.judul}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </>
+                      )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

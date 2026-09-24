@@ -25,9 +25,9 @@ export const Footer = () => {
             <h3 className="text-[#142B42] text-[16px] font-bold mb-2">Navigasi</h3>
             <div className="w-8 h-[3px] bg-[#F7921C] mb-6"></div>
             <ul className="flex flex-col gap-4">
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Beranda</a></li>
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">E-Kalender</a></li>
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Jurnal</a></li>
+              <li><a href="/" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Beranda</a></li>
+              <li><a href="/#section-kalender" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">E-Kalender</a></li>
+              <li><a href="/#section-arsip" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Jurnal</a></li>
             </ul>
           </div>
 
@@ -36,10 +36,10 @@ export const Footer = () => {
             <h3 className="text-[#142B42] text-[16px] font-bold mb-2">Tautan Cepat</h3>
             <div className="w-8 h-[3px] bg-[#F7921C] mb-6"></div>
             <ul className="flex flex-col gap-4">
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Profil Bawaslu Kebumen</a></li>
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Layanan Informasi Publik</a></li>
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">PPID Bawaslu</a></li>
-              <li><a href="#" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Kontak Kami</a></li>
+              <li><a href="https://kebumen.bawaslu.go.id/profil" target="_blank" rel="noopener noreferrer" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Profil Bawaslu Kebumen</a></li>
+              <li><a href="https://kebumen.bawaslu.go.id/layanan-informasi-publik" target="_blank" rel="noopener noreferrer" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Layanan Informasi Publik</a></li>
+              <li><a href="https://ppid.bawaslu.go.id/" target="_blank" rel="noopener noreferrer" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">PPID Bawaslu</a></li>
+              <li><a href="https://kebumen.bawaslu.go.id/kontak" target="_blank" rel="noopener noreferrer" className="text-[#5D6A77] text-[13px] hover:text-[#F7921C] transition-colors font-medium">Kontak Kami</a></li>
             </ul>
           </div>
 

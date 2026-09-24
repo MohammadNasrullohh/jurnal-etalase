@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SearchBar } from '@/features/jurnal-filter/ui/search-bar.client'
 import { useJurnalFilter } from '@/features/jurnal-filter/lib/use-jurnal-filter'
@@ -12,40 +12,66 @@ import { DokumentasiSection } from '@/widgets/dokumentasi/ui'
 import { Footer } from '@/widgets/footer/ui'
 import { StatsSection } from '@/widgets/stats-section/ui'
 import { AuthButton } from '@/features/lawet-auth/ui/auth-button.client'
+import { loginAction } from '@/features/lawet-auth/api/login.action'
 import {
   HeroLogoReveal,
   HeroTitleReveal,
   HeroSubtitleReveal,
 } from './hero-text-reveal.client'
 
+import { type LawetUser } from '@/entities/lawet-user'
+
 const queryClient = new QueryClient()
 
-const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubtitle: string }> = ({ heroImagePath, heroTitle, heroSubtitle }) => {
-  const { q, kategori, setFilter, resetFilter } = useJurnalFilter()
+const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubtitle: string; user: LawetUser | null; recentPhotos?: any[] }> = ({ heroImagePath, heroTitle, heroSubtitle, user, recentPhotos }) => {
+  const { q, kategori, tahun, setFilter, resetFilter } = useJurnalFilter()
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeDate, setActiveDate] = useState<string | null>(null)
   const [selectedJurnalId, setSelectedJurnalId] = useState<string | null>(null)
   const [isLoginOpen, setIsLoginOpen] = React.useState(false)
   const [showPin, setShowPin] = React.useState(false)
+  
+  const [username, setUsername] = useState('kasubag')
+  const [loginError, setLoginError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const jId = searchParams.get('jurnalId');
+    if (jId) setSelectedJurnalId(jId);
+  }, [searchParams])
   const [pin, setPin] = useState(['', '', '', ''])
   const pinRefs = useRef<(HTMLInputElement | null)[]>([])
   
-  const handlePinChange = (index: number, value: string) => {
+  const handlePinChange = async (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
     const newPin = [...pin];
     newPin[index] = value.slice(-1);
     setPin(newPin);
+    setLoginError(null);
     
     if (value && index < 3) {
       pinRefs.current[index + 1]?.focus();
     }
     
     if (index === 3 && value) {
-       setTimeout(() => {
-         router.push('/panel')
-       }, 500)
+       const fullPin = newPin.join('');
+       setIsSubmitting(true);
+       try {
+         const res = await loginAction(username, fullPin);
+         if (res.success) {
+           router.push('/panel')
+         } else {
+           setLoginError(res.error || 'Login gagal')
+           setPin(['', '', '', ''])
+           pinRefs.current[0]?.focus()
+         }
+       } catch (err) {
+         setLoginError('Terjadi kesalahan')
+       } finally {
+         setIsSubmitting(false)
+       }
     }
   }
 
@@ -66,15 +92,33 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
   const [isSection3Visible, setIsSection3Visible] = useState(false)
   const section3Ref = useRef<HTMLElement>(null)
 
+  const [isScrolled, setIsScrolled] = useState(false)
+  const mainRef = useRef<HTMLDivElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const scrollMarkerRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
+    // Open login modal if URL has #login
+    if (window.location.hash === '#login') {
+      setIsLoginOpen(true);
+      window.history.replaceState(null, '', ' '); // Clean up the hash
+    }
+
+    // Height calculation for parallax
     setVhPx(window.innerHeight)
-    const onScroll = () => setScrollY(window.scrollY)
     const onResize = () => setVhPx(window.innerHeight)
-    window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize)
+
+    // Foolproof polling loop for scroll position
+    const pollScroll = setInterval(() => {
+      const currentScrollY = window.scrollY;
+      setScrollY(currentScrollY);
+      setIsScrolled(currentScrollY > 150);
+    }, 100);
+
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onResize)
+      window.removeEventListener('resize', onResize);
+      clearInterval(pollScroll);
     }
   }, [])
 
@@ -122,38 +166,50 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="relative bg-[var(--color-canvas)] overflow-x-hidden min-h-screen">
-
-
-        {/* Sticky Header */}
-        <div className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrollY > 150 ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
-          <div className="w-full max-w-[1429px] mx-auto px-4 md:px-10 py-4">
-            <div className="bg-[#EBF2FC]/60 backdrop-blur-xl rounded-[44.5px] h-[89px] px-8 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(255,255,255,0.3)]" style={{ fontFamily: 'Poppins' }}>
-              <div className="flex items-center">
-                <img src="/assets/hero-logo-etalase.png" alt="ETALASE" className="h-[45px] object-contain" />
-              </div>
-              <div className="hidden lg:flex items-center gap-[60px]">
-                <a href="#" className="text-[#142B42] font-semibold text-[15px] relative">
-                  Beranda
-                  <div className="absolute -bottom-1.5 left-0 w-full h-[2px] bg-[#142B42]"></div>
-                </a>
-                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">E-kalender</a>
-                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Jurnal</a>
-                <a href="#" className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Dokumentasi</a>
-              </div>
-              <button 
-                className="bg-[#F7921C] hover:bg-[#e08316] transition-colors text-white font-semibold text-[15px] w-[154px] h-[67px] rounded-[34px] flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.1)]"
-                onClick={() => setIsLoginOpen(true)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                Login
-              </button>
+      {/* Sticky Header — appears only on scroll */}
+      <div className={`fixed top-0 left-0 w-full z-[100] pt-4 pb-2 transition-all duration-500 ${isScrolled ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+        <div className="w-full max-w-[1429px] mx-auto px-4 md:px-10">
+          <div className="bg-white shadow-md rounded-[44.5px] h-[89px] px-8 flex items-center justify-between" style={{ fontFamily: 'Poppins' }}>
+            <div className="flex items-center">
+              <img src="/assets/hero-logo-etalase.png" alt="ETALASE" className="h-[45px] object-contain" />
             </div>
+            <div className="hidden lg:flex items-center gap-[60px]">
+              <button onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})} className="text-[#142B42] font-semibold text-[15px] relative">
+                Beranda
+                <div className="absolute -bottom-1.5 left-0 w-full h-[2px] bg-[#142B42]"></div>
+              </button>
+              <button onClick={() => document.getElementById('section-kalender')?.scrollIntoView({behavior: 'smooth'})} className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">E-kalender</button>
+              <button onClick={() => document.getElementById('section-arsip')?.scrollIntoView({behavior: 'smooth'})} className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Jurnal</button>
+              <button onClick={() => document.getElementById('section-dokumentasi')?.scrollIntoView({behavior: 'smooth'})} className="text-[#5D6A77] font-medium text-[15px] hover:text-[#F7921C] transition-colors">Dokumentasi</button>
+            </div>
+            <button 
+              className="bg-[#F7921C] hover:bg-[#e08316] transition-colors text-white font-semibold text-[15px] w-[154px] h-[67px] rounded-[34px] flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.1)]"
+              onClick={() => user ? (window.location.href = '/panel') : setIsLoginOpen(true)}
+            >
+              {user ? (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                  Panel
+                </>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Login
+                </>
+              )}
+            </button>
           </div>
         </div>
+      </div>
+
+      {/* overflow-x:clip does NOT create a scroll container (unlike overflow-x:hidden) */}
+      <div ref={mainRef} className="relative bg-[var(--color-canvas)] min-h-screen" style={{ overflowX: 'clip' }}>
+        
+        {/* The true scroll marker that moves with the content */}
+        <div ref={scrollMarkerRef} className="w-full h-px pointer-events-none" />
 
         {/* NEW WHITE HERO SECTION */}
-        <section className="relative w-full pt-[120px] pb-[80px]">
+        <section className="relative w-full pt-[120px] pb-[40px]">
           
           <div className="relative z-25 w-full max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col lg:flex-row items-center justify-between">
             
@@ -195,13 +251,13 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
 
               <div className="flex flex-wrap gap-4">
                 <button 
-                  onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-[#F7921C] text-white px-8 py-3.5 rounded-full font-semibold hover:bg-[#e08519] transition-all hover:-translate-y-1 shadow-[0_10px_20px_rgba(247,146,28,0.3)]"
                 >
                   Lihat Kalender
                 </button>
                 <button 
-                  onClick={() => document.getElementById('section-kpi')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-transparent text-[#F7921C] border-2 border-[#F7921C] px-8 py-3.5 rounded-full font-semibold hover:bg-[#FFF3E5] transition-colors"
                 >
                   Jelajahi Kami
@@ -255,10 +311,9 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
         <StatsSection />
 
         {/* SECTION 2.5 - CALENDAR */}
-        <div className="w-full pb-10">
-          <CalendarSection onEventClick={() => setSelectedJurnalId('evt-1')} />
+        <div id="section-kalender" className="w-full pb-4">
+          <CalendarSection />
         </div>
-
 
         {/* SECTION 3 - ARSIP JURNAL */}
         <section
@@ -266,10 +321,10 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
           ref={section3Ref}
           className="relative w-full pb-4"
         >
-          <div className="max-w-[1440px] mx-auto px-4 md:px-10 pt-10">
+          <div className="max-w-[1440px] mx-auto px-4 md:px-10 pt-4">
             
               {/* Figma-Matched Search Bar Container */}
-              <div className="bg-white rounded-[20px] px-6 py-5 flex flex-col md:flex-row items-center justify-between mb-16 max-w-[1282px] mx-auto gap-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.03)]" style={{ fontFamily: 'Poppins' }}>
+              <div className="bg-white rounded-[20px] px-6 py-5 flex flex-col md:flex-row items-center justify-between mb-8 max-w-[1282px] mx-auto gap-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.03)]" style={{ fontFamily: 'Poppins' }}>
                 
                 {/* Search Input */}
                 <div className="flex-none h-[62px] w-full md:w-[604px] flex items-center px-6 bg-[#F8FAFC] border border-[#737272]/50 rounded-[20px] transition-colors focus-within:border-[#F7921C]">
@@ -279,7 +334,12 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                     placeholder="Cari judul artikel, topik, penulis (contoh : parmas, netralitas, verifikasi)" 
                     className="w-full bg-transparent border-none outline-none text-[#142B42] text-[14px] placeholder-[#9CA3AF]"
                     value={q}
-                    onChange={(e) => setFilter(e.target.value, kategori)}
+                    onChange={(e) => setFilter(e.target.value, kategori, tahun)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    }}
                   />
                 </div>
                 
@@ -291,28 +351,34 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                     <select 
                       className="w-full h-full bg-transparent text-[#5D6A77] text-[14px] font-medium outline-none pl-6 pr-12 cursor-pointer appearance-none z-10"
                       value={kategori}
-                      onChange={(e) => setFilter(q, e.target.value)}
+                      onChange={(e) => setFilter(q, e.target.value, tahun)}
                     >
                       <option value="">Semua Kategori</option>
-                      <option value="sosialisasi">Sosialisasi</option>
-                      <option value="rapat">Rapat Evaluasi</option>
-                      <option value="mou">MoU</option>
+                        <option value="Penanganan Pelanggaran">Penanganan Pelanggaran</option>
+                        <option value="Penyelesaian Sengketa">Penyelesaian Sengketa</option>
                     </select>
                     <svg className="w-5 h-5 text-[#9CA3AF] absolute right-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
   
                   {/* Tahun Dropdown */}
                   <div className="relative h-[62px] w-full md:max-w-[190px] flex-1 bg-[#F8FAFC] border border-[#737272]/50 rounded-[20px] flex items-center hover:border-[#F7921C]/50 transition-colors">
-                    <select className="w-full h-full bg-transparent text-[#5D6A77] text-[14px] font-medium outline-none pl-6 pr-12 cursor-pointer appearance-none z-10">
-                      <option>Semua Tahun</option>
-                      <option>2026</option>
-                      <option>2025</option>
+                    <select 
+                      className="w-full h-full bg-transparent text-[#5D6A77] text-[14px] font-medium outline-none pl-6 pr-12 cursor-pointer appearance-none z-10"
+                      value={tahun}
+                      onChange={(e) => setFilter(q, kategori, e.target.value)}
+                    >
+                      <option value="">Semua Tahun</option>
+                      <option value="2026">2026</option>
+                      <option value="2025">2025</option>
                     </select>
                     <svg className="w-5 h-5 text-[#9CA3AF] absolute right-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7"></path></svg>
                   </div>
   
                   {/* Search Button */}
-                  <button className="h-[62px] w-full md:w-[140px] flex-none bg-[#F7921C] rounded-[20px] flex items-center justify-center gap-2 text-white text-[15px] font-bold hover:bg-[#e08419] transition-all">
+                  <button 
+                    onClick={() => document.getElementById('section-arsip')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="h-[62px] w-full md:w-[140px] flex-none bg-[#F7921C] rounded-[20px] flex items-center justify-center gap-2 text-white text-[15px] font-bold hover:bg-[#e08419] transition-all"
+                  >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     Cari
                   </button>
@@ -335,7 +401,9 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
         </section>
 
         {/* SECTION 4 - DOKUMENTASI KEGIATAN */}
-        <DokumentasiSection />
+        <div id="section-dokumentasi">
+          <DokumentasiSection photos={recentPhotos || []} />
+        </div>
 
         {/* FOOTER */}
         <Footer />
@@ -379,8 +447,10 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                   <label className="block text-[16px] text-[#142B42] font-medium mb-3 ml-2">Username</label>
                   <input 
                     type="text" 
-                    placeholder="@ecapirank" 
-                    className="w-full h-[60px] bg-[#F2F5FF] rounded-[16px] px-6 text-[16px] text-[#142B42] font-medium outline-none border-2 border-transparent focus:border-[#4F83F5] transition-colors placeholder:text-[#142B42]" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Masukkan username (staff / kasubag)" 
+                    className="w-full h-[60px] bg-[#F2F5FF] rounded-[16px] px-6 text-[16px] text-[#142B42] font-medium outline-none border-2 border-transparent focus:border-[#4F83F5] transition-colors placeholder:text-[#142B42]/50" 
                   />
                 </div>
                   <div className="mb-4">
@@ -411,9 +481,17 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                         />
                       ))}
                     </div>
-                  </div><div className="text-right mt-4">
-                  <a href="#" className="text-[#F14646] font-medium text-[16px] hover:underline pr-2">lupa PIN</a>
-                </div>
+                  </div>
+                    {loginError && (
+                      <div className="mt-4 text-center text-red-500 font-medium text-sm">
+                        {loginError}
+                      </div>
+                    )}
+                    <div className="flex justify-end mt-4">
+                      <button className="text-[#F14141] font-medium text-[14px] hover:underline">
+                        lupa PIN
+                      </button>
+                    </div>
               </div>
             </div>
           </div>
@@ -425,3 +503,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
 }
 
 export default LandingView
+
+
+
+

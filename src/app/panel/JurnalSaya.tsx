@@ -1,228 +1,382 @@
-import React from 'react';
+"use client"
+import React, { useState, useMemo } from 'react';
+import type { JurnalWorkspace } from '@/features/jurnal-saya/api/get-my-jurnals.action';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { FileText, Grid, UserCheck, ChevronDown, User, Calendar, Clock, CheckCircle2, Edit2, Trash2, Eye, AlertTriangle } from 'lucide-react';
 
-export default function JurnalSaya() {
+const MONTHS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+const STATUS_COLORS = ['#4ADE80', '#FB923C', '#F87171']; // Di Terima (Green), Menunggu (Orange), Di Tolak (Red)
+const CAT_COLORS = ['#60A5FA', '#F87171', '#FBBF24', '#818CF8']; // Sosialisasi (Blue), Rapat (Red), MoU (Yellow), Lainnya (Indigo)
+
+import { useRouter } from 'next/navigation';
+import { deleteJurnalAction } from '@/features/jurnal-saya/api/delete.action';
+import { JurnalDetailModal } from '@/entities/jurnal/ui/jurnal-detail-modal.client';
+export default function JurnalSaya({ workspace, error }: { workspace: JurnalWorkspace | null, error: string | null }) {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'Semua'|'Draft'|'Terbit'>('Semua');
+  const [deletePopup, setDeletePopup] = useState<string | null>(null);
+  const [detailPopup, setDetailPopup] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [toast, setToast] = useState<{message: string, type: 'info'|'success'|'error'} | null>(null);
+  const showToast = (message: string, type: 'info'|'success'|'error' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const subordinates = workspace ? workspace.subordinates : [];
+  const mine = workspace ? workspace.mine : [];
+  
+  const hasSubordinates = subordinates.length > 0;
+  const listToRender = hasSubordinates ? subordinates : mine;
+
+  const filteredList = useMemo(() => {
+    let items = listToRender;
+    if (activeTab === 'Draft') {
+       items = items.filter(i => i.status === 'draft' || i.status === 'publish_pending' || i.status === 'rejected');
+    } else if (activeTab === 'Terbit') {
+       items = items.filter(i => i.status === 'published');
+    }
+    return items;
+  }, [listToRender, activeTab]);
+
+
+
+  const allItems = workspace ? [...workspace.mine, ...workspace.subordinates] : [];
+  
+  const total = allItems.length;
+  const published = allItems.filter(i => i.status === 'published').length;
+  const pending = allItems.filter(i => i.status === 'publish_pending').length;
+  const rejectedCount = allItems.filter(i => i.status === 'rejected').length;
+
+  const currentYear = new Date().getFullYear();
+  const barData = MONTHS.map((m, idx) => {
+    const count = allItems.filter(i => {
+       if (!i.tanggal_kegiatan) return false;
+       const d = new Date(i.tanggal_kegiatan);
+       return d.getFullYear() === currentYear && d.getMonth() === idx;
+    }).length;
+    return { name: m, value: count };
+  });
+  
+  const pieStatusData = [
+    { name: 'Di Terima', value: published, color: '#4ADE80' },
+    { name: 'Menunggu', value: pending, color: '#FB923C' },
+    { name: 'Di Tolak', value: rejectedCount, color: '#F87171' },
+    { name: 'Draft', value: allItems.filter(i => i.status === 'draft').length, color: '#9CA3AF' }
+  ].filter(d => d.value > 0);
+  
+  const pieCatData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allItems.forEach(item => {
+      const cat = item.kategori || 'Lainnya';
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value], index) => ({
+      name,
+      value,
+      color: CAT_COLORS[index % CAT_COLORS.length]
+    }));
+  }, [allItems]);
+
+  if (error) {
+    return <div className="p-10 text-red-500">{error}</div>;
+  }
+  if (!workspace) {
+    return <div className="p-10 text-gray-500">Memuat data...</div>;
+  }
+
   return (
-    <div className="flex-1 p-6 md:p-10 flex flex-col h-full overflow-y-auto">
-      
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-[18px]">
+    <div className="flex-1 p-6 md:p-10 flex flex-col h-full overflow-y-auto w-full max-w-[1200px] mx-auto">
+      {toast && (
+        <div className={`fixed top-6 right-6 z-[200] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-white text-sm font-semibold transition-all animate-fade-in
+          ${toast.type === 'error' ? 'bg-red-500' : toast.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`}>
+          {toast.type === 'error' ? <AlertTriangle size={18} /> : toast.type === 'success' ? <CheckCircle2 size={18} /> : <FileText size={18} />} {toast.message}
+        </div>
+      )}
+      {/* Top 3 Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm flex flex-col justify-center">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="text-[#396094]">
+              <FileText size={24} strokeWidth={2} />
+            </div>
+            <h4 className="text-[#396094] font-bold text-[18px]">Semua Jurnal</h4>
+          </div>
+          <h2 className="text-[40px] font-bold text-[#142B42] mb-1">{total}</h2>
+          <p className="text-[#A0AAB5] text-sm">Total Jurnal yang diajukan</p>
+        </div>
         
-        {/* Semua Jurnal */}
-        <div className="w-full h-[182px] bg-white rounded-[20px] border border-[#E2E8F0] p-6 flex flex-col justify-between relative cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-colors hover:bg-slate-50">
-          <div className="flex items-center gap-3">
-            <div className="w-[32px] h-[32px] flex items-center justify-center rounded-md border border-[#E2E8F0]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm flex flex-col justify-center">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="text-[#142B42]">
+              <Grid size={24} strokeWidth={2} />
             </div>
-            <span className="text-[#142B42] text-[13px] font-bold">Semua Jurnal</span>
+            <h4 className="text-[#142B42] font-bold text-[18px]">Menunggu Proses</h4>
           </div>
-          <div className="flex flex-col mt-4">
-            <span className="text-[#142B42] text-[42px] font-bold leading-none mb-2">10</span>
-            <span className="text-[#7B8EA0] text-[11px] font-medium">Total Jurnal yang diajukan</span>
-          </div>
-          <div className="absolute bottom-6 right-6 text-[#142B42]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
+          <h2 className="text-[40px] font-bold text-[#142B42] mb-1">{pending}</h2>
+          <p className="text-[#A0AAB5] text-sm">Dalam Tahap Verifikasi</p>
         </div>
-
-        {/* Menunggu Proses */}
-        <div className="w-full h-[182px] bg-white rounded-[20px] border border-[#F7921C]/30 p-6 flex flex-col justify-between relative cursor-pointer shadow-[0_8px_24px_rgba(247,146,28,0.15)] transition-colors hover:bg-slate-50">
-          <div className="flex items-center gap-3">
-            <div className="w-[32px] h-[32px] flex items-center justify-center rounded-md border border-[#E2E8F0]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm flex flex-col justify-center">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="text-[#142B42]">
+              <UserCheck size={24} strokeWidth={2} />
             </div>
-            <span className="text-[#142B42] text-[13px] font-bold">Menunggu Proses</span>
+            <h4 className="text-[#142B42] font-bold text-[18px]">Terbit</h4>
           </div>
-          <div className="flex flex-col mt-4">
-            <span className="text-[#142B42] text-[42px] font-bold leading-none mb-2">1</span>
-            <span className="text-[#7B8EA0] text-[11px] font-medium">Dalam Tahap Verifikasi</span>
-          </div>
-          <div className="absolute bottom-6 right-6 text-[#F7921C]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
+          <h2 className="text-[40px] font-bold text-[#142B42] mb-1">{published}</h2>
+          <p className="text-[#A0AAB5] text-sm">Telah Di Publikasikan</p>
         </div>
-
-        {/* Terbit */}
-        <div className="w-full h-[182px] bg-white rounded-[20px] border border-[#E2E8F0] p-6 flex flex-col justify-between relative cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-colors hover:bg-slate-50">
-          <div className="flex items-center gap-3">
-            <div className="w-[32px] h-[32px] flex items-center justify-center rounded-md border border-[#E2E8F0]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
-            </div>
-            <span className="text-[#142B42] text-[13px] font-bold">Terbit</span>
-          </div>
-          <div className="flex flex-col mt-4">
-            <span className="text-[#142B42] text-[42px] font-bold leading-none mb-2">3</span>
-            <span className="text-[#7B8EA0] text-[11px] font-medium">Telah Di Publikasikan</span>
-          </div>
-          <div className="absolute bottom-6 right-6 text-[#87BFFF]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-        </div>
-
       </div>
 
-      {/* Placeholder for Charts */}
-      <div className="flex gap-[18px] mt-4 w-full">
+      {/* 3 Charts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Bar Chart */}
-        <div className="w-[42%] h-[277px] bg-white rounded-[22px] border-[0.28px] border-black p-6 shadow-sm flex flex-col shrink-0">
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm h-[320px] flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <span className="text-[#142B42] text-[12px] font-bold">Jumlah Jurnal Per Bulan</span>
-            <div className="w-[75px] h-[24px] bg-[#F1F6FC] rounded-[17px] flex items-center justify-center gap-1 cursor-pointer text-[#142B42] text-[11px] font-medium">
-              2026
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <h4 className="text-sm font-bold text-[#142B42]">Jumlah Jurnal Per Bulan</h4>
+            <div className="text-xs bg-[#F6F9FC] text-[#7B8EA0] px-3 py-1.5 rounded-full flex items-center gap-1 font-semibold cursor-pointer">
+              2026 <ChevronDown size={14} />
             </div>
           </div>
-            <div className="flex-1 flex mt-2 relative pl-6 pb-6">
-              {/* Y-axis labels and ticks */}
-              <div className="absolute left-0 top-0 bottom-6 w-5 flex flex-col justify-between items-end text-[9px] text-[#7B8EA0] font-medium z-10">
-                <div className="flex items-center gap-1 w-full justify-end translate-y-[-50%]"><span className="leading-none text-right">10<br/>0</span><div className="w-1 h-[1px] bg-[#D1D5DB]"></div></div>
-                <div className="flex items-center gap-1 w-full justify-end translate-y-[-50%]"><span>75</span><div className="w-1 h-[1px] bg-[#D1D5DB]"></div></div>
-                <div className="flex items-center gap-1 w-full justify-end translate-y-[-50%]"><span>50</span><div className="w-1 h-[1px] bg-[#D1D5DB]"></div></div>
-                <div className="flex items-center gap-1 w-full justify-end translate-y-[-50%]"><span>25</span><div className="w-1 h-[1px] bg-[#D1D5DB]"></div></div>
-                <div className="flex items-center gap-1 w-full justify-end translate-y-[50%]"><span>0</span><div className="w-1 h-[1px] bg-[#D1D5DB]"></div></div>
-              </div>
-              
-              {/* Main Grid Area */}
-              <div className="flex-1 relative border-l border-b border-[#D1D5DB] flex">
-                {/* Horizontal Gridlines */}
-                <div className="absolute top-0 left-0 right-0 border-t border-[#F3F4F6] z-0"></div>
-                <div className="absolute top-[25%] left-0 right-0 border-t border-[#F3F4F6] z-0"></div>
-                <div className="absolute top-[50%] left-0 right-0 border-t border-[#F3F4F6] z-0"></div>
-                <div className="absolute top-[75%] left-0 right-0 border-t border-[#F3F4F6] z-0"></div>
-
-                {/* Vertical Gridlines & Bars & X-axis labels */}
-                {[25, 88, 35, 82, 20, 55, 48, 50, 30, 30, 30, 96].map((val, i) => (
-                  <div key={i} className="flex-1 relative flex flex-col items-center justify-end h-full border-r border-[#F3F4F6]">
-                    {/* Bar */}
-                    <div className="w-[75%] bg-[#FFAE42] z-10" style={{ height: `${val}%` }}></div>
-                    
-                    {/* X-axis tick */}
-                    <div className="absolute bottom-[-4px] w-[1px] h-1 bg-[#D1D5DB]"></div>
-                    
-                    {/* X-axis label */}
-                    <span className="absolute bottom-[-20px] text-[9px] text-[#7B8EA0] font-medium">{i}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-        </div>
-        
-        {/* Pie Charts */}
-        <div className="flex-1 h-[273px] bg-white rounded-[22px] border-[0.28px] border-black p-6 shadow-sm flex flex-col">
-          <span className="text-[#142B42] text-[12px] font-bold mb-4">Status Jurnal</span>
-          <div className="flex-1 flex items-center justify-center">
-             <div className="w-[140px] h-[140px] rounded-full bg-[#4ADE80] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[70px] h-[70px] bg-[#F87171] transform origin-bottom-left rotate-45"></div>
-                <div className="absolute bottom-0 right-0 w-[70px] h-[70px] bg-[#FACC15]"></div>
-             </div>
-          </div>
-          <div className="flex justify-center gap-4 mt-4">
-             <span className="flex items-center gap-1 text-[9px] text-[#7B8EA0]"><div className="w-2 h-2 rounded-full bg-[#4ADE80]"></div> Diterima</span>
-             <span className="flex items-center gap-1 text-[9px] text-[#7B8EA0]"><div className="w-2 h-2 rounded-full bg-[#FACC15]"></div> Menunggu</span>
-             <span className="flex items-center gap-1 text-[9px] text-[#7B8EA0]"><div className="w-2 h-2 rounded-full bg-[#F87171]"></div> Ditolak</span>
+          <div className="flex-1 -ml-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" fontSize={10} axisLine={true} tickLine={false} tick={{fill: '#A0AAB5'}} />
+                <YAxis fontSize={10} axisLine={true} tickLine={false} tick={{fill: '#A0AAB5'}} />
+                <Tooltip cursor={{fill: '#f1f5f9'}} />
+                <Bar dataKey="value" fill="#FBBF24" radius={[2, 2, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="flex-1 h-[273px] bg-white rounded-[22px] border-[0.28px] border-black p-6 shadow-sm flex flex-col">
-          <span className="text-[#142B42] text-[12px] font-bold mb-4">Kategori Jurnal</span>
-          <div className="flex-1 flex items-center justify-center">
-             <div className="w-[140px] h-[140px] rounded-full bg-[#60A5FA] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[70px] h-[70px] bg-[#C084FC]"></div>
-                <div className="absolute bottom-0 right-0 w-[70px] h-[70px] bg-[#F472B6]"></div>
-             </div>
+        {/* Status Pie Chart */}
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm h-[320px] flex flex-col items-center">
+          <h4 className="text-sm font-bold text-[#142B42] w-full text-left mb-2">Status Jurnal</h4>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="80%">
+              <PieChart>
+                <Pie data={pieStatusData} cx="50%" cy="50%" innerRadius={0} outerRadius={80} dataKey="value" stroke="none">
+                  {pieStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-          <div className="flex justify-center gap-4 mt-4">
-             <span className="flex items-center gap-1 text-[9px] text-[#7B8EA0]"><div className="w-2 h-2 rounded-full bg-[#60A5FA]"></div> Sosialisasi</span>
-             <span className="flex items-center gap-1 text-[9px] text-[#7B8EA0]"><div className="w-2 h-2 rounded-full bg-[#C084FC]"></div> Rapat</span>
+          <div className="flex justify-center gap-4 mt-2 w-full text-[10px] text-[#7B8EA0] font-medium">
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#4ADE80]"></div>Di Terima</div>
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#FB923C]"></div>Menunggu</div>
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#F87171]"></div>Di Tolak</div>
+            <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#9CA3AF]"></div>Draft</div>
+          </div>
+        </div>
+
+        {/* Kategori Pie Chart */}
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm h-[320px] flex flex-col items-center">
+          <h4 className="text-sm font-bold text-[#142B42] w-full text-left mb-2">Kategori Jurnal</h4>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="80%">
+              <PieChart>
+                <Pie data={pieCatData} cx="50%" cy="50%" innerRadius={0} outerRadius={80} dataKey="value" stroke="none">
+                  {pieCatData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex justify-center flex-wrap gap-3 mt-2 w-full text-[10px] text-[#7B8EA0] font-medium">
+            {pieCatData.map((entry, index) => (
+              <div key={index} className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                {entry.name}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Jurnal Bawahan Row */}
-      <div className="bg-white rounded-[20px] border border-[#E2E8F0] p-6 shadow-sm mt-4 flex flex-col">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2 mb-1">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              <h3 className="text-[#142B42] text-[14px] font-bold">Jurnal Bawahan</h3>
+      {/* Jurnal List Section */}
+      <div className="bg-white rounded-[24px] p-8 shadow-sm mb-10">
+        <div className="flex justify-between items-start mb-8">
+          <div className="flex gap-4">
+            <div className="mt-1 text-[#142B42]">
+              <User size={24} strokeWidth={2} />
             </div>
-            <p className="text-[#7B8EA0] text-[11px] font-medium ml-6">Draft yang menunggu review dan jurnal terbit staf</p>
+            <div>
+              <h3 className="font-bold text-[#142B42] text-[20px] mb-1">
+                {hasSubordinates ? 'Jurnal Bawahan' : 'Daftar Jurnal'}
+              </h3>
+              <p className="text-[#7B8EA0] text-[14px]">
+                {hasSubordinates ? 'Draft yang menunggu review dan jurnal terbit staf' : 'Daftar jurnal yang telah Anda ajukan'}
+              </p>
+            </div>
           </div>
-          <div className="flex bg-white/10 backdrop-blur-[4.81px] shadow-[inset_-3.21px_3.21px_3.21px_rgba(255,255,255,0.4),inset_3.21px_-3.21px_3.21px_rgba(214,214,214,0.4)] rounded-full p-1">
-            <button className="px-6 py-1.5 bg-[#142B42] text-white text-[11px] font-medium rounded-full shadow-sm">Semua</button>
-            <button className="px-6 py-1.5 text-[#7B8EA0] text-[11px] font-medium rounded-full hover:bg-gray-100 transition-colors">Draft</button>
-            <button className="px-6 py-1.5 text-[#7B8EA0] text-[11px] font-medium rounded-full hover:bg-gray-100 transition-colors">Terbit</button>
+          
+          <div className="flex bg-[#F6F9FC] p-1.5 rounded-full">
+            <button 
+              onClick={() => setActiveTab('Semua')}
+              className={`px-6 py-2 rounded-full text-[14px] font-semibold transition-colors ${activeTab === 'Semua' ? 'bg-[#142B42] text-white' : 'text-[#7B8EA0] hover:bg-gray-100'}`}
+            >
+              Semua
+            </button>
+            <button 
+              onClick={() => setActiveTab('Draft')}
+              className={`px-6 py-2 rounded-full text-[14px] font-semibold transition-colors ${activeTab === 'Draft' ? 'bg-[#142B42] text-white' : 'text-[#7B8EA0] hover:bg-gray-100'}`}
+            >
+              Draft
+            </button>
+            <button 
+              onClick={() => setActiveTab('Terbit')}
+              className={`px-6 py-2 rounded-full text-[14px] font-semibold transition-colors ${activeTab === 'Terbit' ? 'bg-[#142B42] text-white' : 'text-[#7B8EA0] hover:bg-gray-100'}`}
+            >
+              Terbit
+            </button>
           </div>
         </div>
 
-        {/* Grid Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Terbit Publik', label: 'Terbit Publik' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Terbit Publik', label: 'Terbit Publik' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Terbit Publik', label: 'Terbit Publik' },
-            { status: 'Terbit Publik', label: 'Terbit Publik' },
-            { status: 'Terbit Publik', label: 'Terbit Publik' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-            { status: 'Menunggu approval', label: 'Menunggu approval' },
-          ].map((item, idx) => (
-              <div key={idx} className="h-[172px] bg-[#FFFEFE] rounded-[12px] border-[0.28px] border-[#142B42] p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-                {/* Card Header */}
-                <div className="flex justify-between items-center mb-4">
-                  <span className="w-[79px] h-[20px] flex justify-center items-center gap-1 bg-[#E7F2FE] text-[#0284C7] text-[8px] font-bold rounded-[10px] whitespace-nowrap leading-none">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    Sosialisasi
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredList.map((item, idx) => {
+            const isPub = item.status === 'published';
+            return (
+              <div key={idx} className="bg-[#FFFEFE] border border-[#142B42] rounded-[12px] p-4 flex flex-col transition-all hover:shadow-md w-full min-h-[185px] h-full">
+                <div className="flex justify-between items-start gap-1 mb-3">
+                  <span className="bg-[#E7F2FE] text-[#3B82F6] px-2 h-[20px] rounded-[10px] text-[9px] font-bold flex items-center gap-1 whitespace-nowrap shrink-0 overflow-hidden">
+                    <FileText size={10} strokeWidth={2.5} className="shrink-0" /> 
+                    <span className="truncate">{item.kategori || 'Sosialisasi'}</span>
                   </span>
-                  {item.status === 'Menunggu approval' ? (
-                    <span className="w-[109px] h-[20px] flex justify-center items-center gap-1 bg-[#FFE5C8] text-[#F97316] text-[8px] font-bold rounded-[10px] whitespace-nowrap leading-none">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      Menunggu Approval
+                                    {isPub ? (
+                    <span className="bg-[#C0FFDF] text-[#22C55E] px-2 h-[20px] rounded-[10px] text-[9px] font-bold flex items-center justify-center gap-1 whitespace-nowrap shrink-0">
+                      <CheckCircle2 size={10} strokeWidth={2.5} className="shrink-0" /> 
+                      Terbit Publik
+                    </span>
+                  ) : item.status === 'rejected' ? (
+                    <span className="bg-[#FF3333] text-white px-3 h-[24px] rounded-[12px] text-[10px] font-bold flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0">
+                      <Clock size={12} strokeWidth={2.5} className="shrink-0" /> 
+                      Di Tolak
+                    </span>
+                  ) : item.status === 'draft' ? (
+                    <span className="bg-[#F3F4F6] text-[#6B7280] px-2 h-[20px] rounded-[10px] text-[9px] font-bold flex items-center justify-center gap-1 whitespace-nowrap shrink-0">
+                      <Edit2 size={10} strokeWidth={2.5} className="shrink-0" /> 
+                      Draft
                     </span>
                   ) : (
-                    <span className="w-[78px] h-[20px] flex justify-center items-center gap-1 bg-[#C0FFDF] text-[#16A34A] text-[8px] font-bold rounded-[10px] whitespace-nowrap leading-none">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      Terbit Publik
+                    <span className="bg-[#FFE5C8] text-[#F97316] px-2 h-[20px] rounded-[10px] text-[9px] font-bold flex items-center justify-center gap-1 whitespace-nowrap shrink-0">
+                      <Clock size={10} strokeWidth={2.5} className="shrink-0" /> 
+                      Menunggu Approval
                     </span>
                   )}
                 </div>
-  
-                {/* Card Title & Info */}
-                <div className="flex flex-col mb-5">
-                  <h4 className="text-[#283D52] text-[12px] font-medium mb-3">Bawaslu Kebumen</h4>
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2 text-[#142B42] text-[8px]">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                      16 September 2026
-                    </div>
-                    <div className="flex items-center gap-2 text-[#142B42] text-[8px]">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                      Staf Divisi Pengawasan
-                    </div>
+
+                <h4 className="font-medium text-[#283D52] text-[12px] line-clamp-2 min-h-[18px]">{item.judul || 'Tanpa Judul'}</h4>
+
+                <div className="flex-1" />
+
+                <div className="flex flex-col gap-1 text-[#475569] text-[10px] font-medium mb-3 mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar size={12} strokeWidth={2.5} /> 
+                    {item.tanggal_kegiatan ? new Date(item.tanggal_kegiatan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '18 September 2026'}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <User size={12} strokeWidth={2.5} />
+                    {item.divisi ? `Staf ${item.divisi}` : 'Staf Divisi Pengawasan'}
                   </div>
                 </div>
-  
-                {/* Card Action */}
-                {item.status === 'Menunggu approval' ? (
-                  <button className="w-full h-[26px] bg-[#1F365C] text-[#FFFEFE] text-[12px] font-medium rounded-[8px] flex items-center justify-center gap-2 hover:bg-[#152441] transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    Review
-                  </button>
-                ) : (
-                  <button className="w-full h-[26px] bg-[#FFFEFE] border-[0.5px] border-[#142B42] text-[#142B42] text-[12px] font-medium rounded-[8px] flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    Lihat
-                  </button>
-                )}
+
+                <div className="w-full">
+                  {isPub ? (
+                    <button 
+                      onClick={() => window.open('/?jurnalId=' + item.id, '_blank')}
+                      className="w-full h-[26px] bg-[#142B42] hover:bg-[#1f3f61] text-white rounded-[8px] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Eye size={12} strokeWidth={2.5} /> Lihat
+                    </button>
+                  ) : (
+                    <div className="flex gap-2 w-full">
+                      <button 
+                        onClick={() => router.push(`/panel?tab=edit&editId=${item.id}`)}
+                        className="flex-1 shrink-0 h-[26px] bg-[#1F365C] hover:bg-[#142642] text-white rounded-[8px] text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Edit2 size={12} strokeWidth={2.5} /> Edit
+                      </button>
+                      <button 
+                        onClick={() => setDeletePopup(item.id)}
+                        className="w-[51px] h-[26px] shrink-0 bg-[#FF3030] hover:bg-[#DC2626] text-white rounded-[8px] flex items-center justify-center transition-colors"
+                      >
+                        <Trash2 size={12} strokeWidth={2.5} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-          ))}
+            );
+          })}
+          
+          {filteredList.length === 0 && (
+            <div className="col-span-3 py-10 text-center text-[#7B8EA0] font-medium">
+              {hasSubordinates ? 'Tidak ada jurnal bawahan' : 'Belum ada jurnal yang diajukan'}
+            </div>
+          )}
         </div>
       </div>
+      {/* DELETE CONFIRMATION POPUP */}
+      {deletePopup && (
+        <div className="fixed inset-0 bg-black/40 z-[999] flex items-center justify-center animate-in fade-in">
+          <div className="bg-white w-[400px] rounded-[16px] shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                <AlertTriangle size={24} className="text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Hapus Jurnal?</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Apakah Anda yakin ingin menghapus jurnal ini? Data yang sudah dihapus tidak dapat dikembalikan.
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button 
+                  onClick={() => setDeletePopup(null)}
+                  className="flex-1 px-4 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={async () => {
+                    if(!deletePopup) return;
+                    setIsDeleting(true);
+                    const res = await deleteJurnalAction(deletePopup);
+                    setIsDeleting(false);
+                    if(res.success) {
+                      setDeletePopup(null);
+                      showToast('Jurnal berhasil dihapus', 'success');
+                    } else {
+                      showToast('Gagal menghapus jurnal: ' + res.error, 'error');
+                    }
+                  }}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+

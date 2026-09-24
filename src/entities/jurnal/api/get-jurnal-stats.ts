@@ -42,7 +42,7 @@ export async function getJurnalYears(): Promise<number[]> {
       year: sql<number>`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan})::int`,
     })
     .from(jurnal)
-    .where(eq(jurnal.is_published, true))
+    .where(and(eq(jurnal.is_published, true), eq(jurnal.workflow_status, 'published')))
     .groupBy(sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan})`)
     .orderBy(sql`EXTRACT(YEAR FROM ${jurnal.tanggal_kegiatan})`)
 
@@ -209,3 +209,4 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
     recent_highlights,
   }
 }
+

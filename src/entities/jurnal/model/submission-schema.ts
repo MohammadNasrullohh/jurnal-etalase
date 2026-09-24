@@ -28,6 +28,7 @@ export const customFieldItemSchema = z.object({
 export type CustomFieldItem = z.infer<typeof customFieldItemSchema>
 
 export const jurnalSubmissionSchema = z.object({
+  id: z.string().optional(),
   judul: z.string().min(3, 'Judul minimal 3 karakter').max(255, 'Judul maksimal 255 karakter'),
   tanggal_kegiatan: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal harus YYYY-MM-DD'),
   kategori: z.string().min(1, 'Kategori wajib diisi').max(50, 'Kategori maksimal 50 karakter'),
@@ -36,7 +37,8 @@ export const jurnalSubmissionSchema = z.object({
   pihak_terkait: z.array(pihakTerkaitItemSchema).default([]),
   custom_fields: z.array(customFieldItemSchema).default([]),
   tags: z.array(z.string()).default([]),
-  link_publikasi: z.union([z.string().url('Link publikasi tidak valid'), z.literal('')]).optional()
+  link_publikasi: z.union([z.string().url('Link publikasi tidak valid'), z.literal('')]).optional(),
+  is_published: z.boolean().default(false)
 })
 
 export type JurnalSubmissionPayload = z.infer<typeof jurnalSubmissionSchema>

@@ -22,7 +22,8 @@ export function JurnalSubmitForm() {
     pihak_terkait: [],
     custom_fields: [],
     tags: [],
-    link_publikasi: ''
+    link_publikasi: '',
+    is_published: true
   })
 
   const handleSubmit = async (e: React.FormEvent) => {

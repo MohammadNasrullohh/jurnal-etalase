@@ -37,6 +37,7 @@ interface ActiveFilter {
 const StatsSectionInner: React.FC = () => {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeCard, setActiveCard] = useState<'overview' | 'kategori' | 'mitra' | 'berita'>('overview')
   const [data, setData] = useState<StatsData | null>(null)
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
@@ -243,7 +244,7 @@ const StatsSectionInner: React.FC = () => {
           
           {/* Card 1 */}
           <div 
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => { setActiveCard('overview'); setIsModalOpen(true); }}
             className="w-full bg-white rounded-[20px] p-6 flex flex-col justify-between cursor-pointer border border-[#E2E8F0] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -251,22 +252,22 @@ const StatsSectionInner: React.FC = () => {
               <span className="text-[#142B42] text-[15px] font-bold">Total Kegiatan</span>
             </div>
             <div>
-              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">10</div>
+              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">{data?.kpi_summary?.total_kegiatan ?? 0}</div>
               <div className="flex items-center justify-between">
-                <span className="text-[#5D6A77] text-[13px]">Bulan September 2026</span>
+                <span className="text-[#5D6A77] text-[13px]">Tahun {selectedYear || new Date().getFullYear()}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
               </div>
             </div>
           </div>
 
           {/* Card 2 */}
-          <div className="w-full bg-white border border-[#F7921C]/40 rounded-[20px] p-6 flex flex-col justify-between shadow-[0_4px_20px_rgba(247,146,28,0.08)]">
+              <div onClick={() => { setActiveCard('kategori'); setIsModalOpen(true); }} className="w-full bg-white border border-[#F7921C]/40 rounded-[20px] p-6 flex flex-col justify-between cursor-pointer hover:-translate-y-1 transition-all shadow-[0_4px_20px_rgba(247,146,28,0.08)] hover:shadow-[0_8px_30px_rgba(247,146,28,0.15)]">
             <div className="flex items-center gap-3 mb-6">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
               <span className="text-[#142B42] text-[15px] font-bold">Kategori Terbanyak</span>
             </div>
             <div>
-              <div className="text-[#142B42] text-[28px] font-bold mb-1 truncate leading-none">Sosialisasi</div>
+              <div className="text-[#142B42] text-[24px] font-bold mb-1 leading-tight capitalize line-clamp-2">{data?.kpi_summary?.top_category?.kategori || '-'}</div>
               <div className="flex items-center justify-between">
                 <span className="text-[#5D6A77] text-[13px]">Dokumen Terverifikasi</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7921C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
@@ -275,13 +276,13 @@ const StatsSectionInner: React.FC = () => {
           </div>
 
           {/* Card 3 */}
-          <div className="w-full bg-white border border-[#E2E8F0] rounded-[20px] p-6 flex flex-col justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <div onClick={() => { setActiveCard('mitra'); setIsModalOpen(true); }} className="w-full bg-white border border-[#E2E8F0] rounded-[20px] p-6 flex flex-col justify-between cursor-pointer hover:-translate-y-1 transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
             <div className="flex items-center gap-3 mb-6">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               <span className="text-[#142B42] text-[15px] font-bold">Mitra Kolaborasi</span>
             </div>
             <div>
-              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">3</div>
+              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">{data?.kpi_summary?.total_mitra ?? 0}</div>
               <div className="flex items-center justify-between">
                 <span className="text-[#5D6A77] text-[13px]">Instansi</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
@@ -290,13 +291,13 @@ const StatsSectionInner: React.FC = () => {
           </div>
 
           {/* Card 4 */}
-          <div className="w-full bg-white border border-[#F7921C]/40 rounded-[20px] p-6 flex flex-col justify-between shadow-[0_4px_20px_rgba(247,146,28,0.08)]">
+              <div onClick={() => { setActiveCard('berita'); setIsModalOpen(true); }} className="w-full bg-white border border-[#F7921C]/40 rounded-[20px] p-6 flex flex-col justify-between cursor-pointer hover:-translate-y-1 transition-all shadow-[0_4px_20px_rgba(247,146,28,0.08)] hover:shadow-[0_8px_30px_rgba(247,146,28,0.15)]">
             <div className="flex items-center gap-3 mb-6">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#142B42" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><line x1="11.5" y1="14.5" x2="14" y2="17"/></svg>
               <span className="text-[#142B42] text-[15px] font-bold">Terekspos Berita</span>
             </div>
             <div>
-              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">5</div>
+              <div className="text-[#142B42] text-[28px] font-bold mb-1 leading-none">{data?.kpi_summary?.published_media_count ?? 0}</div>
               <div className="flex items-center justify-between">
                 <span className="text-[#5D6A77] text-[13px]">Kegiatan</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7921C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
@@ -306,9 +307,10 @@ const StatsSectionInner: React.FC = () => {
 
         </div>
       </div>
-      <StatsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <StatsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} data={data} activeCard={activeCard} />
     </section>
   )
 }
 
 export const StatsSection = memo(StatsSectionInner)
+

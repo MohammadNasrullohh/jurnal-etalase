@@ -54,7 +54,7 @@ export const JurnalCard: React.FC<JurnalCardProps> = ({
     <div
       id={`jurnal-card-${id}`}
       data-tanggal={tanggal_kegiatan}
-      className="jurnal-card relative group flex flex-col w-full max-w-[405px] h-[428px] mx-auto bg-[#FCFCFC] rounded-[26px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer outline-none"
+      className="jurnal-card relative group flex flex-col w-full max-w-[405px] h-auto mx-auto bg-[#FCFCFC] rounded-[26px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer outline-none"
       style={{
         animationDelay: staggerDelay,
         fontFamily: 'Poppins'
@@ -74,9 +74,9 @@ export const JurnalCard: React.FC<JurnalCardProps> = ({
       <div className="relative">
         {/* Padded Container for Image */}
         <div className="pt-[35px] px-[35.5px] relative shrink-0">
-          <div className="relative w-full h-[171px] rounded-[15px] overflow-hidden">
+          <div className="relative w-full h-[171px] rounded-[15px] overflow-hidden bg-gray-100">
             <img
-              src={thumbnail_url || '/assets/banner-image.jpg'}
+              src={(thumbnail_url && (thumbnail_url.startsWith('http') || thumbnail_url.startsWith('/') || thumbnail_url.startsWith('data:'))) ? thumbnail_url : '/assets/banner-image.jpg'}
               alt={judul}
               className="w-full h-full object-cover"
             />
