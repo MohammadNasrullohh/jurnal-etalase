@@ -407,8 +407,8 @@ export default function KelolaJurnal({ workspace, error }: { workspace: JurnalWo
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[11px] rounded-full font-medium">
-                      Publik
+                    <span className={`px-3 py-1 text-[11px] rounded-full font-medium ${item.is_published ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-600'}`}>
+                      {item.is_published ? 'Publik' : 'Privat'}
                     </span>
                   </td>
                   <td className="py-3 px-4">

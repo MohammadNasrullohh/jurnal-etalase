@@ -21,6 +21,7 @@ export interface MyJurnalItem {
   kategori: string
   status: JurnalWorkflowStatus
   scope: JurnalScope
+  is_published?: boolean
   owner_id?: string
   owner_name?: string
   divisi?: string
@@ -79,7 +80,8 @@ function normalizeStatus(value: unknown, fallback: JurnalWorkflowStatus): Jurnal
 function normalizeJurnal(
   item: JsonRecord,
   fallbackStatus: JurnalWorkflowStatus,
-  scope: JurnalScope,
+  scope: JurnalScope
+  is_published?: boolean,
 ): MyJurnalItem | null {
   const id = readString(item.id) || readString(item.source_id)
   const judul = readString(item.judul)
@@ -228,6 +230,7 @@ export async function getJurnalWorkspaceAction(): Promise<JurnalWorkspace> {
       kategori: j.kategori,
       status: j.workflow_status as JurnalWorkflowStatus,
       scope: 'mine',
+      is_published: j.is_published,
       owner_name: j.redaksi || '',
       divisi: j.divisi || '', link_publikasi: j.link_publikasi || undefined,
       dokumentasi: (j.dokumentasi as any[]) || [],
@@ -251,6 +254,7 @@ tags: (j.tags as string[]) || [],
       kategori: j.kategori,
       status: j.workflow_status as JurnalWorkflowStatus,
       scope: 'subordinate',
+      is_published: j.is_published,
       owner_name: j.redaksi || '',
       divisi: j.divisi || '', link_publikasi: j.link_publikasi || undefined,
       dokumentasi: (j.dokumentasi as any[]) || [],
