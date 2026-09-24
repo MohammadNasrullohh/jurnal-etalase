@@ -193,12 +193,12 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
 
                           {/* Popup Detail */}
                             {selectedDate === cell.day && (
-                                <div className={`absolute ${Math.floor(i / 7) >= 4 ? 'bottom-[80%] pb-2' : 'top-[80%] pt-2'} left-1/2 -translate-x-1/2 z-50 w-[250px]`}
+                                <div className={`absolute ${Math.floor(i / 7) >= 3 ? 'bottom-[80%] pb-2' : 'top-[80%] pt-2'} left-1/2 -translate-x-1/2 z-50 w-[250px]`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="relative w-full">
                                   {/* White Front Layer */}
-                                    <div className="relative z-10 w-full bg-white rounded-[20px] p-4 text-left shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-[#E5E7EB]">
+                                    <div className="relative z-10 w-full bg-white rounded-[20px] p-4 text-left shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-[#E5E7EB] max-h-[200px] overflow-y-auto custom-scrollbar">
                                     <div className="flex items-center justify-between text-[#F7921C] mb-3">
                                       <div className="flex items-center gap-2">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
