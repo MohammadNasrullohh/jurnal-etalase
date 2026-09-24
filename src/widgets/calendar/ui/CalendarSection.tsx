@@ -197,11 +197,8 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="relative w-full">
-                                  {/* Orange Back Layer */}
-                                  <div className="absolute top-0 right-0 w-[239.65px] h-full bg-[#FEB143] rounded-[19.21px] border-[0.5px] border-black pointer-events-none translate-y-[3px] -translate-x-[7px]"></div>
-                                  
                                   {/* White Front Layer */}
-                                  <div className="relative z-10 w-[229.77px] ml-auto bg-[#FDFDFD] rounded-[19.21px] border-[0.5px] border-black p-4 text-left mr-0.5 shadow-sm">
+                                    <div className="relative z-10 w-full bg-white rounded-[20px] p-4 text-left shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-[#E5E7EB]">
                                     <div className="flex items-center justify-between text-[#F7921C] mb-3">
                                       <div className="flex items-center gap-2">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
