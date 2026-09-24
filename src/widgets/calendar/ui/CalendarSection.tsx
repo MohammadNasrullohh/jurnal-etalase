@@ -193,7 +193,7 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
 
                           {/* Popup Detail */}
                             {selectedDate === cell.day && (
-                              <div className="absolute top-[80%] left-1/2 -translate-x-1/2 z-50 w-[250px] pt-2"
+                                <div className={`absolute ${Math.floor(i / 7) >= 4 ? 'bottom-[80%] pb-2' : 'top-[80%] pt-2'} left-1/2 -translate-x-1/2 z-50 w-[250px]`}
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="relative w-full">
