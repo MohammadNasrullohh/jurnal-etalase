@@ -173,6 +173,10 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
     const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
     const newFotos: string[] = [];
     for (const file of validFiles) {
+      if (file.size > 1 * 1024 * 1024) {
+        alert('Ukuran foto maksimal 1MB!');
+        continue;
+      }
       const dataUrl = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
@@ -706,7 +710,7 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
                     </div>
                     <div>
                       <h4 className="text-[#142B42] text-[15px] font-bold mb-0.5">Foto Dokumentasi</h4>
-                      <p className="text-[#7B8EA0] text-[13px]">Unggah Foto Kegiatan</p>
+                      <p className="text-[#7B8EA0] text-[13px]">Unggah Foto Kegiatan (Maks 1MB)</p>
                     </div>
                   </div>
                   

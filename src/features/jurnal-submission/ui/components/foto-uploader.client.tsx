@@ -20,6 +20,13 @@ export function FotoUploader({ value, onChange }: Props) {
     setError(null)
     const file = e.target.files[0]
 
+    // Validasi ukuran maksimal 1MB
+    if (file.size > 1 * 1024 * 1024) {
+      setError('Ukuran foto maksimal 1MB!')
+      e.target.value = ''
+      return
+    }
+
     // Reset input
     e.target.value = ''
 
