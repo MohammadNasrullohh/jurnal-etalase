@@ -69,6 +69,7 @@ export async function getJurnalList({ q = '', kategori = '', cursor = '', limit 
     id: jurnal.id,
     source_id: jurnal.source_id,
     judul: jurnal.judul,
+      ringkasan: jurnal.ringkasan,
     tanggal_kegiatan: jurnal.tanggal_kegiatan,
     kategori: jurnal.kategori,
     link_publikasi: jurnal.link_publikasi,

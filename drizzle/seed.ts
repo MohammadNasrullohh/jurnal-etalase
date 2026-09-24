@@ -115,6 +115,7 @@ async function main() {
       redaksi: "Budi Santoso",
         ringkasan: "Kegiatan diawali pembukaan oleh ketua panitia, dilanjutkan pemaparan materi mengenai peran masyarakat dalam pengawasan tahapan pemilu. Sesi tanya jawab berlangsung selama 40 menit dengan 12 penanya. Peserta yang hadir sebanyak 85 orang dari 6 perguruan tinggi. Kegiatan ditutup dengan penandatanganan komitmen pengawasan partisipatif.",
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "c2c2c2c2-3333-3333-3333-333333333333",
@@ -136,6 +137,7 @@ async function main() {
       ],
       redaksi: "Siti Rahma",
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "c3c3c3c3-3333-3333-3333-333333333333",
@@ -158,6 +160,7 @@ async function main() {
       ],
       redaksi: "Admin Bawaslu",
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "c4c4c4c4-3333-3333-3333-333333333333",
@@ -178,6 +181,7 @@ async function main() {
         { label: "Status Laporan", value: "Diteruskan ke KASN" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e1e1e1e1-1111-1111-1111-111111111111",
@@ -199,6 +203,7 @@ async function main() {
         { label: "Lokasi", value: "Hotel Grand Kolopaking Kebumen" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e2e2e2e2-2222-2222-2222-222222222222",
@@ -219,6 +224,7 @@ async function main() {
         { label: "Nomor PKS", value: "12/PKS/BAWASLU-KWARCAB/V/2026" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e3e3e3e3-3333-3333-3333-333333333333",
@@ -237,6 +243,7 @@ async function main() {
         { label: "Fokus Pengawasan", value: "Daftar Pemilih Sementara" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e4e4e4e4-4444-4444-4444-444444444444",
@@ -258,6 +265,7 @@ async function main() {
         { label: "Status Mediasi", value: "Sepakat Damai" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e5e5e5e5-5555-5555-5555-555555555555",
@@ -276,6 +284,7 @@ async function main() {
         { label: "Hasil Kajian", value: "Tidak Memenuhi Syarat Materil" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e6e6e6e6-6666-6666-6666-666666666666",
@@ -296,6 +305,7 @@ async function main() {
         { label: "Jumlah PKD Dilantik", value: "460 Orang" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e7e7e7e7-7777-7777-7777-777777777777",
@@ -316,6 +326,7 @@ async function main() {
         { label: "Nomor Dokumen", value: "22/MOU-PWI/VII/2026" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e8e8e8e8-8888-8888-8888-888888888888",
@@ -337,6 +348,7 @@ async function main() {
         { label: "Fokus Logistik", value: "Bilik Suara & Kotak Suara" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "e9e9e9e9-9999-9999-9999-999933333333",
@@ -355,6 +367,7 @@ async function main() {
         { label: "Jenis Temuan", value: "Pantarlih melewatkan pencocokan data 3 dusun" }
       ],
       is_published: true,
+        workflow_status: 'published',
     },
     {
       source_id: "fa1fa1fa-1111-1111-1111-111111111111",
@@ -373,6 +386,7 @@ async function main() {
         { label: "Status Rekomendasi", value: "Diterima KPU" }
       ],
       is_published: true,
+        workflow_status: 'published',
     }
   ]
 

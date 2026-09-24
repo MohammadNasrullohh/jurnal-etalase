@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       const summary = {
         id: item.id,
         judul: item.judul,
+        ringkasan: item.ringkasan,
         tanggal_kegiatan: item.tanggal_kegiatan,
         kategori: item.kategori,
         thumbnail_url: thumbnailUrl,
