@@ -14,6 +14,7 @@ import { JurnalDetailModal } from '@/entities/jurnal/ui/jurnal-detail-modal.clie
 export default function JurnalSaya({ workspace, error }: { workspace: JurnalWorkspace | null, error: string | null }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'Semua'|'Draft'|'Terbit'>('Semua');
+  const [chartYear, setChartYear] = useState<number>(new Date().getFullYear());
   const [deletePopup, setDeletePopup] = useState<string | null>(null);
   const [detailPopup, setDetailPopup] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -49,12 +50,11 @@ export default function JurnalSaya({ workspace, error }: { workspace: JurnalWork
   const pending = allItems.filter(i => i.status === 'publish_pending').length;
   const rejectedCount = allItems.filter(i => i.status === 'rejected').length;
 
-  const currentYear = new Date().getFullYear();
   const barData = MONTHS.map((m, idx) => {
     const count = allItems.filter(i => {
        if (!i.tanggal_kegiatan) return false;
        const d = new Date(i.tanggal_kegiatan);
-       return d.getFullYear() === currentYear && d.getMonth() === idx;
+       return d.getFullYear() === chartYear && d.getMonth() === idx;
     }).length;
     return { name: m, value: count };
   });
@@ -136,9 +136,14 @@ export default function JurnalSaya({ workspace, error }: { workspace: JurnalWork
         <div className="bg-white rounded-[16px] border border-[#E5E7EB] p-6 shadow-sm h-[320px] flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h4 className="text-sm font-bold text-[#142B42]">Jumlah Jurnal Per Bulan</h4>
-            <div className="text-xs bg-[#F6F9FC] text-[#7B8EA0] px-3 py-1.5 rounded-full flex items-center gap-1 font-semibold cursor-pointer">
-              2026 <ChevronDown size={14} />
-            </div>
+            <select 
+              value={chartYear} 
+              onChange={(e) => setChartYear(Number(e.target.value))} 
+              className="text-xs bg-[#F6F9FC] text-[#7B8EA0] px-3 py-1.5 rounded-full outline-none font-semibold cursor-pointer appearance-none text-center"
+              style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg fill="%237B8EA0" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', paddingRight: '24px' }}
+            >
+              {[2024, 2025, 2026, 2027, 2028].map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
           </div>
           <div className="flex-1 -ml-4">
             <ResponsiveContainer width="100%" height="100%">

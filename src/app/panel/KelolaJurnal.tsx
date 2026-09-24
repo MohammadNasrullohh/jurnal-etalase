@@ -13,6 +13,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', '
 export default function KelolaJurnal({ workspace, error }: { workspace: JurnalWorkspace | null, error: string | null }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'Semua'|'Draft'|'Terbit'>('Semua');
+  const [chartYear, setChartYear] = useState<number>(new Date().getFullYear());
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
