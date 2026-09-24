@@ -772,9 +772,25 @@ export default function PanelLayoutClient({ activeMenu, workspace, error, user, 
                   type="text" 
                   value={pihakTerkaitInput}
                   onChange={(e) => setPihakTerkaitInput(e.target.value)}
-                  placeholder="Contoh : Ahmad Wahyudi, Budi Santoso (Maks 2, pisahkan dengan koma)"
+                  placeholder="Contoh: KPU, Dinas Kesehatan, Universitas (Maks 2, pisahkan dengan koma)"
                   className="w-full h-[73px] bg-[#F6F9FC] border border-[#C7C7C7] rounded-[11px] px-5 text-[14px] text-[#142B42] focus:outline-none focus:border-[#4F83F5] transition-colors" 
                 />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="text-[12px] text-gray-500 font-medium py-1">Saran Instansi:</span>
+                  {['KPU', 'Bawaslu', 'Dinas', 'Pemda', 'Universitas', 'Sekolah', 'Polres', 'LSM'].map(saran => (
+                    <button
+                      key={saran}
+                      type="button"
+                      onClick={() => setPihakTerkaitInput(prev => prev ? prev + ', ' + saran : saran)}
+                      className="px-3 py-1 bg-white border border-gray-200 rounded-full text-[11px] text-gray-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                    >
+                      + {saran}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] text-gray-400">
+                  *Sistem akan otomatis mengkategorikan statistik berdasarkan kata kunci (contoh: "Dinas" masuk ke Pemerintah Daerah).
+                </p>
               </div>
 
               {/* Submit Action */}
