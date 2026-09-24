@@ -371,7 +371,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                       </div>
                       
                       {isKategoriOpen && (
-                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute top-[calc(100%+8px)] left-0 min-w-full w-max bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                           <div className="py-2">
                             {[
                               { label: "Semua Kategori", val: "" },
@@ -380,7 +380,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                             ].map((opt) => (
                               <div 
                                 key={opt.label}
-                                className={`px-5 py-3 text-[14px] cursor-pointer transition-colors ${kategori === opt.val ? 'bg-[#F7921C]/10 text-[#F7921C] font-bold' : 'text-[#475569] hover:bg-slate-50 font-medium'}`}
+                                className={`px-5 py-3 text-[14px] cursor-pointer transition-colors whitespace-nowrap ${kategori === opt.val ? 'bg-[#F7921C]/10 text-[#F7921C] font-bold' : 'text-[#475569] hover:bg-slate-50 font-medium'}`}
                                 onClick={() => {
                                   setFilter(q, opt.val, tahun);
                                   setIsKategoriOpen(false);
@@ -405,7 +405,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                       </div>
                       
                       {isTahunOpen && (
-                        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute top-[calc(100%+8px)] left-0 min-w-full w-max bg-white border border-[#E2E8F0] rounded-[16px] shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                           <div className="py-2">
                             {[
                               { label: "Semua Tahun", val: "" },
@@ -414,7 +414,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
                             ].map((opt) => (
                               <div 
                                 key={opt.label}
-                                className={`px-5 py-3 text-[14px] cursor-pointer transition-colors ${tahun === opt.val ? 'bg-[#F7921C]/10 text-[#F7921C] font-bold' : 'text-[#475569] hover:bg-slate-50 font-medium'}`}
+                                className={`px-5 py-3 text-[14px] cursor-pointer transition-colors whitespace-nowrap ${tahun === opt.val ? 'bg-[#F7921C]/10 text-[#F7921C] font-bold' : 'text-[#475569] hover:bg-slate-50 font-medium'}`}
                                 onClick={() => {
                                   setFilter(q, kategori, opt.val);
                                   setIsTahunOpen(false);
