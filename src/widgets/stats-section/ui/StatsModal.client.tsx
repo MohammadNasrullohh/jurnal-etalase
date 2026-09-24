@@ -74,8 +74,9 @@ const renderCustomBarLabel = (props: any) => {
 
 export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: StatsModalProps & { activeCard?: 'overview' | 'kategori' | 'mitra' | 'berita' }) => {
   // Use real data if available, otherwise fallback to dummy
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
   const actualBarData = data?.monthly_trend?.map((item: any) => ({
-    date: item.month.toString(),
+    date: monthNames[item.month - 1] || item.month.toString(),
     total: item.total
   })) || barData;
 
@@ -152,7 +153,7 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm" style={{ fontFamily: 'Poppins' }}>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm" style={{ fontFamily: 'Poppins' }}>
       <div 
         className="absolute inset-0"
         onClick={onClose}
@@ -179,7 +180,7 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
               <div className="flex-[1.8] flex flex-col h-full">
                 <div className="mb-4">
                   <h2 className="text-[#142B42] text-[20px] font-bold">Kegiatan</h2>
-                  <p className="text-[#5D6A77] text-[13px]">Jumlah Kegiatan Per Tanggal</p>
+                  <p className="text-[#5D6A77] text-[13px]">Jumlah Kegiatan Per Bulan</p>
                 </div>
                 <div className="bg-white rounded-[39px] border-[0.5px] border-black/20 p-8 flex-1 flex flex-col min-h-0">
                   <div className="w-full flex-1 min-h-0">
