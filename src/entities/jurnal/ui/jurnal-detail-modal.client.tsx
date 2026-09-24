@@ -31,16 +31,46 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 }) => {
   const [zoomedImage, setZoomedImage] = React.useState<string | null>(null);
   const [zoomedIndex, setZoomedIndex] = React.useState<number>(0);
+  const [slideDir, setSlideDir] = React.useState<'left' | 'right'>('right');
 
   // Keyboard navigation for lightbox
   useEffect(() => {
     if (!zoomedImage) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setZoomedImage(null);
+      if (e.key === 'ArrowRight') {
+        const docs = (document.querySelector('[data-docs-count]') as any)?.dataset?.docsCount;
+        const total = docs ? parseInt(docs) : 0;
+        if (total > 1) {
+          setSlideDir('right');
+          setZoomedIndex(prev => {
+            const newIdx = (prev + 1) % total;
+            const imgs = document.querySelectorAll('[data-doc-url]');
+            const newUrl = (imgs[newIdx] as HTMLImageElement)?.src;
+            if (newUrl) setZoomedImage(newUrl);
+            return newIdx;
+          });
+        }
+      }
+      if (e.key === 'ArrowLeft') {
+        const docs = (document.querySelector('[data-docs-count]') as any)?.dataset?.docsCount;
+        const total = docs ? parseInt(docs) : 0;
+        if (total > 1) {
+          setSlideDir('left');
+          setZoomedIndex(prev => {
+            const newIdx = (prev - 1 + total) % total;
+            const imgs = document.querySelectorAll('[data-doc-url]');
+            const newUrl = (imgs[newIdx] as HTMLImageElement)?.src;
+            if (newUrl) setZoomedImage(newUrl);
+            return newIdx;
+          });
+        }
+      }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [zoomedImage]);
+
 
 
   const { data: response, isLoading } = useQuery({
@@ -216,11 +246,11 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4" data-docs-count={item.dokumentasi.length}>
 
                   {item.dokumentasi.map((doc: any, i: number) => (
 
-                    <img key={i} src={doc.url} alt={`Dokumentasi ${i+1}`} className="w-full h-[90px] object-cover rounded-[16px] cursor-pointer hover:scale-105 transition-transform shadow-sm" onClick={(e) => { e.stopPropagation(); setZoomedIndex(i); setZoomedImage(doc.url); }} />
+                    <img key={i} data-doc-url={doc.url} src={doc.url} alt={`Dokumentasi ${i+1}`} className="w-full h-[90px] object-cover rounded-[16px] cursor-pointer hover:scale-105 transition-transform shadow-sm" onClick={(e) => { e.stopPropagation(); setSlideDir('right'); setZoomedIndex(i); setZoomedImage(doc.url); }} />
 
                   ))}
 
@@ -400,6 +430,19 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
           className="fixed inset-0 z-[300] flex items-center justify-center bg-black/90 backdrop-blur-sm"
           onClick={() => setZoomedImage(null)}
         >
+          <style>{`
+            @keyframes slideFromRight {
+              from { opacity: 0; transform: translateX(60px) scale(0.96); }
+              to   { opacity: 1; transform: translateX(0)     scale(1); }
+            }
+            @keyframes slideFromLeft {
+              from { opacity: 0; transform: translateX(-60px) scale(0.96); }
+              to   { opacity: 1; transform: translateX(0)      scale(1); }
+            }
+            .lightbox-slide-right { animation: slideFromRight 0.3s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+            .lightbox-slide-left  { animation: slideFromLeft  0.3s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+          `}</style>
+
           {/* Close button */}
           <button
             className="absolute top-5 right-5 z-10 text-white/70 hover:text-white p-2 bg-white/10 hover:bg-white/20 rounded-full transition-all"
@@ -409,16 +452,17 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
           </button>
 
           {/* Counter */}
-          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-[14px] font-semibold">
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 text-white/60 text-[14px] font-semibold bg-black/40 px-4 py-1 rounded-full">
             {zoomedIndex + 1} / {item.dokumentasi.length}
           </div>
 
           {/* Prev button */}
           {item.dokumentasi.length > 1 && (
             <button
-              className="absolute left-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute left-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110 active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
+                setSlideDir('left');
                 const newIdx = (zoomedIndex - 1 + item.dokumentasi.length) % item.dokumentasi.length;
                 setZoomedIndex(newIdx);
                 setZoomedImage(item.dokumentasi[newIdx].url);
@@ -428,20 +472,22 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
             </button>
           )}
 
-          {/* Image */}
+          {/* Image — key triggers remount → fresh animation each time */}
           <img
+            key={`${zoomedIndex}-${slideDir}`}
             src={zoomedImage}
             alt="Preview"
-            className="max-w-[90vw] max-h-[85vh] object-contain rounded-[12px] shadow-2xl animate-in fade-in zoom-in-90 duration-200"
+            className={`max-w-[90vw] max-h-[85vh] object-contain rounded-[12px] shadow-2xl ${slideDir === 'right' ? 'lightbox-slide-right' : 'lightbox-slide-left'}`}
             onClick={(e) => e.stopPropagation()}
           />
 
           {/* Next button */}
           {item.dokumentasi.length > 1 && (
             <button
-              className="absolute right-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all"
+              className="absolute right-4 text-white/70 hover:text-white p-3 bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110 active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
+                setSlideDir('right');
                 const newIdx = (zoomedIndex + 1) % item.dokumentasi.length;
                 setZoomedIndex(newIdx);
                 setZoomedImage(item.dokumentasi[newIdx].url);
@@ -449,6 +495,24 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
+          )}
+
+          {/* Dot indicators */}
+          {item.dokumentasi.length > 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              {item.dokumentasi.map((_: any, i: number) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSlideDir(i > zoomedIndex ? 'right' : 'left');
+                    setZoomedIndex(i);
+                    setZoomedImage(item.dokumentasi[i].url);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${i === zoomedIndex ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'}`}
+                />
+              ))}
+            </div>
           )}
         </div>
       )}
