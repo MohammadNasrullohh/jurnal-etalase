@@ -4,7 +4,7 @@ import type { JurnalWorkspace } from '@/features/jurnal-saya/api/get-my-jurnals.
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { FileText, Grid, UserCheck, ChevronDown, User, Calendar, Clock, CheckCircle2, Edit2, Trash2, Eye, AlertTriangle } from 'lucide-react';
 
-const MONTHS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 const STATUS_COLORS = ['#4ADE80', '#FB923C', '#F87171']; // Di Terima (Green), Menunggu (Orange), Di Tolak (Red)
 const CAT_COLORS = ['#60A5FA', '#F87171', '#FBBF24', '#818CF8']; // Sosialisasi (Blue), Rapat (Red), MoU (Yellow), Lainnya (Indigo)
 

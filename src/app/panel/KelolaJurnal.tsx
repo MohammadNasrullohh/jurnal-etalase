@@ -8,7 +8,7 @@ import { deleteJurnalAction } from '@/features/jurnal-saya/api/delete.action';
 import { JurnalDetailModal } from '@/entities/jurnal/ui/jurnal-detail-modal.client';
 
 const COLORS = ['#4ade80', '#fb923c', '#f87171', '#60a5fa', '#a78bfa'];
-const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
 
 export default function KelolaJurnal({ workspace, error }: { workspace: JurnalWorkspace | null, error: string | null }) {
   const router = useRouter();
