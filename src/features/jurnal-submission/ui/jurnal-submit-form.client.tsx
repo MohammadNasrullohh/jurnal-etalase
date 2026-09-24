@@ -119,6 +119,19 @@ export function JurnalSubmitForm() {
           </div>
         </div>
 
+                    <div>
+            <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-[var(--color-accent-hover)]" /> Ringkasan Kegiatan *
+            </label>
+            <textarea
+              required
+              value={payload.ringkasan || ''}
+              onChange={e => setPayload({ ...payload, ringkasan: e.target.value })}
+              className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]/60 focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm min-h-[120px]"
+              placeholder="Tuliskan ringkasan singkat mengenai kegiatan jurnal..."
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono flex items-center gap-1.5">
