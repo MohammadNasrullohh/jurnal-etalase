@@ -29,6 +29,7 @@ export async function submitJurnalAction(payload: JurnalSubmissionPayload) {
 
     const data = {
       judul: validatedData.judul,
+      ringkasan: validatedData.ringkasan || null,
       tanggal_kegiatan: validatedData.tanggal_kegiatan,
       kategori: validatedData.kategori,
       link_publikasi: validatedData.link_publikasi || null,

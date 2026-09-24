@@ -113,6 +113,7 @@ async function main() {
         { label: "Nomor MoU", value: "05/MOU/BAWASLU-UPB/V/2026" }
       ],
       redaksi: "Budi Santoso",
+        ringkasan: "Kegiatan diawali pembukaan oleh ketua panitia, dilanjutkan pemaparan materi mengenai peran masyarakat dalam pengawasan tahapan pemilu. Sesi tanya jawab berlangsung selama 40 menit dengan 12 penanya. Peserta yang hadir sebanyak 85 orang dari 6 perguruan tinggi. Kegiatan ditutup dengan penandatanganan komitmen pengawasan partisipatif.",
       is_published: true,
     },
     {

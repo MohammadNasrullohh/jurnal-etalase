@@ -30,6 +30,7 @@ export type CustomFieldItem = z.infer<typeof customFieldItemSchema>
 export const jurnalSubmissionSchema = z.object({
   id: z.string().optional(),
   judul: z.string().min(3, 'Judul minimal 3 karakter').max(255, 'Judul maksimal 255 karakter'),
+  ringkasan: z.string().optional(),
   tanggal_kegiatan: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal harus YYYY-MM-DD'),
   kategori: z.string().min(1, 'Kategori wajib diisi').max(50, 'Kategori maksimal 50 karakter'),
   dokumentasi: z.array(dokumentasiItemSchema).default([]),

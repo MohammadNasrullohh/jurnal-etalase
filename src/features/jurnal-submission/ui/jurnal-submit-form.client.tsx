@@ -15,6 +15,7 @@ export function JurnalSubmitForm() {
 
   const [payload, setPayload] = useState<JurnalSubmissionPayload>({
     judul: '',
+    ringkasan: '',
     tanggal_kegiatan: '',
     kategori: 'sosialisasi',
     dokumentasi: [],
@@ -35,7 +36,8 @@ export function JurnalSubmitForm() {
       const res = await submitJurnalAction(payload)
       if (res.success) {
         setSuccess(true)
-        setPayload({ ...payload, judul: '', tags: [] })
+        setPayload({ ...payload, judul: '',
+    ringkasan: '', tags: [] })
       } else {
         setError(res.error || 'Gagal mengirim jurnal')
       }
@@ -84,7 +86,20 @@ export function JurnalSubmitForm() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Ringkasan */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono">Ringkasan Kegiatan *</label>
+            <textarea
+              required
+              rows={4}
+              value={payload.ringkasan || ''}
+              onChange={e => setPayload({ ...payload, ringkasan: e.target.value })}
+              className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]/60 focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm resize-y"
+              placeholder="Ceritakan secara singkat jalannya kegiatan..."
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Tanggal */}
           <div>
             <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono flex items-center gap-1.5">
@@ -120,7 +135,20 @@ export function JurnalSubmitForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Ringkasan */}
+          <div>
+            <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono">Ringkasan Kegiatan *</label>
+            <textarea
+              required
+              rows={4}
+              value={payload.ringkasan || ''}
+              onChange={e => setPayload({ ...payload, ringkasan: e.target.value })}
+              className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]/60 focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm resize-y"
+              placeholder="Ceritakan secara singkat jalannya kegiatan..."
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-2 font-mono flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-[var(--color-accent-hover)]" /> Tags (Pisahkan dengan koma)

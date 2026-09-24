@@ -179,21 +179,14 @@ export const JurnalDetailModal: React.FC<JurnalDetailModalProps> = ({
 
 
 
-            <hr className="border-[#E2E8F0] mb-8 -mx-10" />
-
-
-
-            {/* Deskripsi */}
-
-            {item.custom_fields && item.custom_fields.deskripsi && (
-
-              <div className="text-[14px] text-[#475569] leading-[1.8] text-justify mb-10 font-medium">
-
-                {item.custom_fields.deskripsi}
-
+                        {/* Deskripsi / Redaksi (Ringkasan) */}
+            {item.ringkasan && (
+              <div className="text-[14px] text-[#475569] leading-[1.8] text-justify mt-8 mb-6 font-semibold">
+                {item.ringkasan}
               </div>
-
             )}
+
+            <hr className="border-[#E2E8F0] mb-8 -mx-10" />
 
 
 
