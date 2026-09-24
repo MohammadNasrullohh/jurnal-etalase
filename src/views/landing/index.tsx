@@ -228,8 +228,8 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
           <div className="relative z-25 w-full max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col lg:flex-row items-center justify-between">
             
             {/* Top Right Bawaslu Logo (Aligned to container instead of screen edge) */}
-            <div className="absolute top-[-10px] md:top-[-30px] right-[-5px] md:right-[-20px] lg:right-[-30px] z-50">
-              <img src="/assets/bawaslu_hero_logo.png" alt="Bawaslu Kebumen" className="w-[120px] md:w-[160px] lg:w-[180px] object-contain drop-shadow-sm" />
+            <div className="absolute top-0 md:top-[-10px] right-2 md:right-6 lg:right-10 z-50">
+              <img src="/assets/bawaslu_hero_logo.png" alt="Bawaslu Kebumen" className="w-[90px] md:w-[120px] lg:w-[140px] object-contain drop-shadow-sm" />
             </div>
 
             {/* Left Content */}
