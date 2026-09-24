@@ -26,7 +26,18 @@ export const DokumentasiSection = ({ photos = [] }: { photos?: Array<{url: strin
 
   return (
     <section className="relative w-full pt-10 pb-20 overflow-hidden" style={{ fontFamily: 'Poppins' }}>
-
+      <style>{`
+        @keyframes subtleBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.9; }
+          50% { transform: scale(1.03); opacity: 1; }
+        }
+        .idle-animate {
+          animation: subtleBreathe 6s ease-in-out infinite;
+        }
+        .group:hover .idle-animate {
+          animation: none;
+        }
+      `}</style>
 
       <div className="max-w-[1440px] mx-auto px-4 md:px-10 relative z-10">
         
@@ -54,7 +65,7 @@ export const DokumentasiSection = ({ photos = [] }: { photos?: Array<{url: strin
             {photos.length > 0 ? visiblePhotos.map((foto, idx) => (
               <div key={`${startIndex}-${idx}`} className="relative flex flex-col items-center justify-center bg-[#F8FAFD] rounded-[32px] p-3 hover:shadow-xl transition-all duration-300 group cursor-pointer w-full h-[400px] md:h-[486px]">
                 <div className="w-full h-full rounded-[30px] overflow-hidden relative">
-                  <img src={foto?.url} alt={foto?.judul} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <img src={foto?.url} alt={foto?.judul} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 idle-animate" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
                   <div className="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <span className="bg-[#F7921C] text-white text-[12px] font-bold px-3 py-1 rounded-full mb-2 inline-block">{foto?.kategori}</span>
