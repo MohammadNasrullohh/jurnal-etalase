@@ -3,6 +3,8 @@
 import React, { useEffect } from 'react'
 import {
   BarChart,
+  AreaChart,
+  Area,
   Bar,
   XAxis,
   YAxis,
@@ -176,30 +178,63 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
           )}
 
           {activeCard === 'kategori' && (
-            <div className="flex-1 flex flex-col items-center justify-center h-full">
-              <div className="mb-8 text-center">
-                <h2 className="text-[#142B42] text-[28px] font-bold">Kategori Terbanyak</h2>
-                <p className="text-[#5D6A77] text-[15px] mt-2">Distribusi kategori jurnal yang telah dipublikasikan</p>
+            <div className="flex-1 flex flex-col h-full w-full">
+              <div className="mb-6">
+                <h2 className="text-[#142B42] text-[24px] font-bold">Kategori Terbanyak</h2>
+                <p className="text-[#5D6A77] text-[14px]">Distribusi kategori dan tren kegiatan</p>
               </div>
-              <div className="w-full max-w-[500px] h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={actualPieData} cx="50%" cy="50%" innerRadius={80} outerRadius="95%" paddingAngle={2} dataKey="value" stroke="none">
-                      {actualPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-8">
-                {actualPieData.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-100 shadow-sm">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-[14px] text-[#142B42] font-bold">{item.name}: {item.value}</span>
+              
+              <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+                {/* Left: Tren 7 hari */}
+                <div className="flex-[1.2] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <h3 className="text-[#142B42] text-[18px] font-semibold mb-4">Tren 7 hari</h3>
+                  <div className="flex-1 w-full min-h-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={[
+                        { day: 'Sen', total: 215 },
+                        { day: 'Sel', total: 185 },
+                        { day: 'Rab', total: 205 },
+                        { day: 'Kam', total: 225 },
+                        { day: 'Jum', total: 205 },
+                        { day: 'Sab', total: 245 },
+                        { day: 'Min', total: 235 },
+                      ]} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                        <XAxis dataKey="day" axisLine={{ stroke: '#9CA3AF' }} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                        <Area type="monotone" dataKey="total" stroke="#F97316" strokeWidth={3} fill="#FFF7ED" />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
-                ))}
+                </div>
+
+                {/* Right: Aktivitas per Kategori */}
+                <div className="flex-[1] flex flex-col rounded-[30px] border-[0.5px] border-black/20 p-6 relative bg-white">
+                  <h3 className="text-[#142B42] text-[18px] font-semibold mb-2">Aktivitas per Kategori</h3>
+                  <div className="flex-1 w-full flex flex-col items-center justify-center min-h-0">
+                    <div className="w-full flex-1 min-h-[150px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={actualPieData} cx="50%" cy="50%" innerRadius="45%" outerRadius="80%" paddingAngle={2} dataKey="value" stroke="none">
+                            {actualPieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+                      {actualPieData.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                          <span className="text-[12px] text-[#6B7280] font-medium">{item.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
