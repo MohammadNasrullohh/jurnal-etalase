@@ -223,7 +223,7 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
         <div ref={scrollMarkerRef} className="w-full h-px pointer-events-none" />
 
         {/* NEW WHITE HERO SECTION */}
-        <section className="relative w-full pt-[120px] pb-[40px]">
+        <section className="relative w-full pt-[60px] pb-[40px]">
           
           <div className="relative z-25 w-full max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col lg:flex-row items-center justify-between">
             
