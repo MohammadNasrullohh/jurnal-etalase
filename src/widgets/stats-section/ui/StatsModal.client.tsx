@@ -46,13 +46,7 @@ const barData = [
   { date: '15', total: 74 },
 ]
 
-// Dummy data for Berita modal
-const beritaPieData = [
-  { name: 'Pendidikan', value: 30, color: '#6366F1' },
-  { name: 'Pemda', value: 45, color: '#F87171' },
-  { name: 'Swasta', value: 20, color: '#FBBF24' },
-  { name: 'Lainnya', value: 5, color: '#38BDF8' },
-];
+
 
 // Pie Chart data matching the exact Figma colors
 const pieData = [
@@ -93,6 +87,26 @@ export const StatsModal = ({ isOpen, onClose, data, activeCard = 'overview' }: S
 
 
   // Dummy data for Mitra modal
+  // Media Stats
+  const dummyMediaStats = {
+    'Pendidikan': 30,
+    'Pemda': 45,
+    'Swasta': 20,
+    'Lainnya': 5
+  };
+  const actualMediaStats = data?.media_stats || dummyMediaStats;
+  const mediaColors: Record<string, string> = {
+    'Pendidikan': '#818CF8', // indigo-400
+    'Pemda': '#F87171', // red-400
+    'Swasta': '#FBBF24', // amber-400
+    'Lainnya': '#38BDF8' // sky-400
+  };
+  const beritaPieData = Object.entries(actualMediaStats).map(([name, value]) => ({
+    name,
+    value: value as number,
+    color: mediaColors[name] || '#9CA3AF'
+  })).sort((a, b) => b.value - a.value);
+
   const dummyMitraStats = {
     'Pemerintah Daerah': 145,
     'Instansi Pendidikan': 118,

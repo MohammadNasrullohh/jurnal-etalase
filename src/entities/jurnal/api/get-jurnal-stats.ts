@@ -30,6 +30,7 @@ export interface KpiSummary {
 export interface JurnalStatsAnalytics {
   stats: Record<string, number>
   mitra_stats: Record<string, number>
+  media_stats: Record<string, number>
   monthly_trend: MonthlyTrendItem[]
   division_stats: Record<string, number>
   kpi_summary: KpiSummary
@@ -114,10 +115,17 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
 
   const division_stats: Record<string, number> = Object.fromEntries(divRows.map(r => [r.divisi, r.total]))
 
-  // 4. Publikasi Media
-  const mediaCountRes = await db
+    // 4. Publikasi Media & Media Stats
+  const media_stats: Record<string, number> = {
+    'Pendidikan': 0,
+    'Pemda': 0,
+    'Swasta': 0,
+    'Lainnya': 0
+  }
+
+  const mediaRows = await db
     .select({
-      total: sql<number>`COUNT(*)::int`,
+      link: jurnal.link_publikasi,
     })
     .from(jurnal)
     .where(
@@ -127,7 +135,24 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
         sql`${jurnal.link_publikasi} IS NOT NULL AND TRIM(${jurnal.link_publikasi}) != ''`
       )
     )
-  const published_media_count = mediaCountRes[0]?.total ?? 0
+
+  const published_media_count = mediaRows.length
+
+  for (const row of mediaRows) {
+    if (!row.link) continue
+    const url = row.link.toLowerCase()
+    
+    // Smart domain detection
+    if (url.includes('.go.id') || url.includes('bawaslu') || url.includes('kpu') || url.includes('kebumenkab') || url.includes('jatengprov')) {
+      media_stats['Pemda']++
+    } else if (url.includes('.ac.id') || url.includes('.sch.id') || url.includes('.edu') || url.includes('universitas') || url.includes('kampus')) {
+      media_stats['Pendidikan']++
+    } else if (url.includes('.com') || url.includes('.co.id') || url.includes('.net') || url.includes('news') || url.includes('tribun') || url.includes('detik') || url.includes('kompas')) {
+      media_stats['Swasta']++
+    } else {
+      media_stats['Lainnya']++
+    }
+  }
 
     // 5. Total Mitra Unik (dari pihak_terkait) & Mitra Stats
   let total_mitra = 0
@@ -234,6 +259,7 @@ export async function getJurnalStatsByYear(year: number): Promise<JurnalStatsAna
   return {
     stats,
     mitra_stats,
+    media_stats,
     monthly_trend,
     division_stats,
     kpi_summary,
