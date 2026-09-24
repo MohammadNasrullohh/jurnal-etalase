@@ -17,7 +17,7 @@ export function JurnalSubmitForm() {
     judul: '',
     ringkasan: '',
     tanggal_kegiatan: '',
-    kategori: 'sosialisasi',
+    kategori: 'Penanganan Pelanggaran',
     dokumentasi: [],
     dokumen_pendukung: [],
     pihak_terkait: [],
@@ -126,11 +126,8 @@ export function JurnalSubmitForm() {
               onChange={e => setPayload({ ...payload, kategori: e.target.value })}
               className="w-full bg-[var(--color-surface-overlay)] border border-[var(--glass-border-default)] rounded-xl px-4 py-3 text-sm text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-accent)] transition-colors shadow-sm"
             >
-              <option value="sosialisasi">Sosialisasi</option>
-              <option value="rapat">Rapat</option>
-              <option value="koordinasi">Koordinasi</option>
-              <option value="pengawasan">Pengawasan</option>
-              <option value="lainnya">Lainnya</option>
+              <option value="Penanganan Pelanggaran">Penanganan Pelanggaran</option>
+              <option value="Penyelesaian Sengketa">Penyelesaian Sengketa</option>
             </select>
           </div>
         </div>
