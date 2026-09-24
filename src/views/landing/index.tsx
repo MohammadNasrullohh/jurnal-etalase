@@ -228,8 +228,8 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
           <div className="relative z-25 w-full max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col lg:flex-row items-center justify-between">
             
             {/* Top Right Bawaslu Logo (Aligned to container instead of screen edge) */}
-            <div className="absolute top-[-20px] md:top-[-40px] right-4 md:right-12 z-50">
-              <img src="/assets/bawaslu_hero_logo.png" alt="Bawaslu Kebumen" className="w-[160px] md:w-[220px] lg:w-[260px] object-contain drop-shadow-sm" />
+            <div className="absolute top-0 md:top-[-20px] right-0 md:right-[-10px] lg:right-[-20px] z-50">
+              <img src="/assets/bawaslu_hero_logo.png" alt="Bawaslu Kebumen" className="w-[120px] md:w-[160px] lg:w-[180px] object-contain drop-shadow-sm" />
             </div>
 
             {/* Left Content */}
@@ -280,46 +280,45 @@ const LandingView: React.FC<{ heroImagePath: string; heroTitle: string; heroSubt
               </div>
 
               {/* Right Content - The Calendars */}
-            <div className="w-full lg:w-[50%] flex justify-center lg:justify-end mt-16 lg:mt-0 relative z-20">
-              <div className="relative w-full max-w-[650px] aspect-square flex items-center justify-center">
-                
-                {/* Abstract Blue Glow */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#346BFF] opacity-15 rounded-[100px] blur-[80px] pointer-events-none -z-10"></div>
+              <div className="w-full lg:w-[50%] flex justify-center lg:justify-end mt-16 lg:mt-0 relative z-20">
+                <div className="relative w-full max-w-[650px] aspect-[4/3] flex items-center justify-center">
+                  
+                  {/* Abstract Blue Glow */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[70%] bg-[#346BFF] opacity-[0.08] blur-[80px] pointer-events-none -z-10"></div>
 
-                {/* Layer 1: Background Floating Cards (kalender_header.png) */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-[65%] -translate-y-1/2 w-[145%] z-0 flex items-center justify-center pointer-events-none">
-                  <img 
-                    src="/assets/kalender_header.png" 
-                    alt="Background decorative cards" 
-                    className="w-full h-auto object-contain drop-shadow-xl"
-                  />
+                  {/* Layer 1: Background Floating Cards (kalender_header.png) */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-[62%] -translate-y-[45%] w-[110%] sm:w-[125%] z-0 pointer-events-none">
+                    <img 
+                      src="/assets/kalender_header.png" 
+                      alt="Background decorative cards" 
+                      className="w-full h-auto object-contain opacity-95"
+                    />
+                  </div>
+
+                  {/* Layer 2: The Core Calendar UI (Flat Mac Window) */}
+                  <div className="absolute top-1/2 right-[5%] -translate-y-[40%] w-[75%] sm:w-[80%] z-10 flex items-center justify-end drop-shadow-2xl">
+                    <img 
+                      src="/assets/kalender_asli_hd.png" 
+                      alt="ETALASE Calendar Illustration" 
+                      className="w-full h-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
+                      onClick={() => {
+                        document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })
+                      }} 
+                    />
+                  </div>
+
+                  {/* Layer 3: The Floating Event Card ("8 Sept 2026") */}
+                  <div className="absolute bottom-[2%] right-[5%] sm:right-[15%] z-20 pointer-events-none drop-shadow-2xl">
+                    <img 
+                      src="/assets/floating_event_card.png" 
+                      alt="Event Card" 
+                      className="w-[200px] md:w-[260px] h-auto object-contain"
+                    />
+                  </div>
                 </div>
-
-                {/* Layer 2: The Core Calendar UI (Flat Mac Window) */}
-                <div className="relative z-10 w-[85%] sm:w-[80%] flex items-center justify-center">
-                  <img 
-                    src="/assets/kalender_asli_hd.png" 
-                    alt="ETALASE Calendar Illustration" 
-                    className="w-full h-auto object-contain cursor-pointer transition-transform hover:scale-[1.02]" 
-                    onClick={() => {
-                      document.getElementById('section-kalender')?.scrollIntoView({ behavior: 'smooth' })
-                    }} 
-                  />
-                </div>
-
-                {/* Layer 3: The Floating Event Card ("8 Sept 2026") */}
-                <div className="absolute bottom-6 right-[-15%] sm:right-[-22%] z-20 pointer-events-none drop-shadow-2xl">
-                  <img 
-                    src="/assets/floating_event_card.png" 
-                    alt="Event Card" 
-                    className="w-[240px] md:w-[280px] lg:w-[320px] object-contain hover:scale-105 transition-transform"
-                  />
-                </div>
-
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
         {/* SECTION 2 — STATS */}
         <StatsSection />
