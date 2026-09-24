@@ -222,7 +222,7 @@ export const CalendarSection = ({ onEventClick }: { onEventClick?: () => void })
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if(onEventClick) onEventClick();
-                                            router.push(`/?jurnalId=${evt.id}`);
+                                            router.push(`/?q=${encodeURIComponent(evt.judul)}#section-arsip`);
                                             setSelectedDate(null);
                                           }}
                                         >
